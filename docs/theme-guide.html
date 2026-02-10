@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credits Plugin - Theme Integration Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        /* Code block styling */
+        pre code { font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace; }
+        .code-block { position: relative; }
+        .code-block .copy-label {
+            position: absolute; top: 8px; right: 8px;
+            font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;
+        }
+
+        /* Smooth scroll */
+        html { scroll-behavior: smooth; }
+
+        /* Sidebar active link */
+        .sidebar-link.active { background: rgba(59, 130, 246, 0.1); border-left-color: #3b82f6; color: #3b82f6; }
+
+        /* Live demo effects */
+        .demo-rainbow a { animation: demo_rainbow 3s linear infinite; text-decoration: none; }
+        @keyframes demo_rainbow {
+            0% { color: #ff0000; } 17% { color: #ff8800; } 33% { color: #ffff00; }
+            50% { color: #00ff00; } 67% { color: #0088ff; } 83% { color: #8800ff; } 100% { color: #ff0000; }
+        }
+        .demo-glow a { animation: demo_glow 2s ease-in-out infinite alternate; color: #3b82f6; text-decoration: none; }
+        @keyframes demo_glow {
+            from { text-shadow: 0 0 5px currentColor; }
+            to { text-shadow: 0 0 15px currentColor, 0 0 30px currentColor; }
+        }
+        .demo-sparkle a {
+            background: linear-gradient(90deg, #3b82f6 40%, #fff 50%, #3b82f6 60%);
+            background-size: 200%; -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent; animation: demo_sparkle 2s linear infinite; text-decoration: none;
+        }
+        @keyframes demo_sparkle { 0% { background-position: 200%; } 100% { background-position: -200%; } }
+        .demo-shadow a { text-shadow: 2px 2px 4px rgba(0,0,0,0.5); color: #3b82f6; text-decoration: none; }
+        .demo-bold a { font-weight: 900; letter-spacing: 0.5px; color: #3b82f6; text-decoration: none; }
+        .demo-gradient a {
+            background: linear-gradient(135deg, #f06, #48f, #0cf); -webkit-background-clip: text;
+            background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-300 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white text-sm">C</div>
+                <div>
+                    <h1 class="text-lg font-bold text-white leading-tight">Credits Plugin</h1>
+                    <p class="text-xs text-slate-500">Theme Integration Guide &middot; v1.2.0</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 text-sm">
+                <a href="https://github.com/joogiebear/credits" class="text-slate-400 hover:text-white transition">GitHub</a>
+                <span class="text-slate-700">|</span>
+                <span class="text-slate-500">MyBB 1.8</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto flex">
+
+        <!-- Sidebar Navigation -->
+        <nav class="hidden lg:block w-64 shrink-0 sticky top-[73px] h-[calc(100vh-73px)] overflow-y-auto border-r border-slate-800 py-6 px-4">
+            <p class="text-[10px] uppercase tracking-widest text-slate-600 font-semibold mb-3 px-3">Getting Started</p>
+            <a href="#overview" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">Overview</a>
+            <a href="#how-it-works" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">How It Works</a>
+            <a href="#template-injections" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">Template Injections</a>
+
+            <p class="text-[10px] uppercase tracking-widest text-slate-600 font-semibold mb-3 mt-6 px-3">Visual Features</p>
+            <a href="#postbit-background" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">Postbit Background</a>
+            <a href="#username-effects" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">Username Effects</a>
+            <a href="#username-colors" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">Username Colors</a>
+            <a href="#awards-badges" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">Awards &amp; Badges</a>
+            <a href="#user-icons" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">User Icons</a>
+            <a href="#booster-badge" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">Booster Badge</a>
+
+            <p class="text-[10px] uppercase tracking-widest text-slate-600 font-semibold mb-3 mt-6 px-3">Layout</p>
+            <a href="#navigation" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">Navigation Link</a>
+            <a href="#ads" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">Ad Placements</a>
+            <a href="#tabs" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">Tab Navigation</a>
+            <a href="#profile-section" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">Profile Section</a>
+            <a href="#credit-log" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">Credit Log</a>
+
+            <p class="text-[10px] uppercase tracking-widest text-slate-600 font-semibold mb-3 mt-6 px-3">Reference</p>
+            <a href="#css-classes" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">All CSS Classes</a>
+            <a href="#template-variables" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">All Template Variables</a>
+            <a href="#javascript-api" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">JavaScript API</a>
+            <a href="#database-fields" class="sidebar-link block px-3 py-1.5 text-sm text-slate-400 hover:text-white border-l-2 border-transparent hover:border-slate-600 transition">Database Fields</a>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0 px-6 lg:px-12 py-10">
+
+            <!-- Overview -->
+            <section id="overview" class="mb-16">
+                <h2 class="text-3xl font-bold text-white mb-4">Theme Integration Guide</h2>
+                <p class="text-slate-400 text-lg leading-relaxed mb-6">
+                    This guide is for MyBB admins and theme developers who want to customize how the Credits plugin looks on their forum. It covers every CSS class, template variable, and rendered HTML structure so you can tailor the plugin to match any custom theme.
+                </p>
+                <div class="bg-blue-950/30 border border-blue-900/50 rounded-xl p-5">
+                    <p class="text-blue-400 font-semibold text-sm mb-2">Who is this for?</p>
+                    <ul class="text-slate-400 text-sm space-y-1.5">
+                        <li>Forum admins running custom or third-party MyBB themes</li>
+                        <li>Theme developers building themes that integrate with Credits</li>
+                        <li>Anyone who wants to override or extend the plugin's default styles</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- How It Works -->
+            <section id="how-it-works" class="mb-16">
+                <h2 class="text-2xl font-bold text-white mb-4">How Styling Works</h2>
+                <p class="text-slate-400 mb-6">The plugin's CSS is provided as a standalone file that you paste into your theme manually. This is the most reliable approach &mdash; no auto-injection issues, works on any hosting environment, and survives plugin updates.</p>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-6">
+                    <p class="text-emerald-400 font-semibold text-sm mb-2">Setup Steps</p>
+                    <ol class="text-slate-400 text-sm space-y-2 list-decimal list-inside">
+                        <li>Locate the <code class="text-emerald-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">STYLES.css</code> file included in the release package.</li>
+                        <li>In your MyBB Admin CP, go to <strong class="text-white">Themes &amp; Templates &rarr; Your Theme &rarr; global.css</strong>.</li>
+                        <li>Paste the contents of <code class="text-emerald-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">STYLES.css</code> at the end of your <code class="text-emerald-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">global.css</code>.</li>
+                        <li>Save the stylesheet. The plugin's styles will now be active on your forum.</li>
+                    </ol>
+                </div>
+
+                <div class="bg-blue-950/30 border border-blue-900/50 rounded-xl p-5">
+                    <p class="text-blue-400 font-semibold text-sm mb-2">Customizing Styles</p>
+                    <p class="text-slate-400 text-sm">To customize the plugin's appearance, simply edit the CSS you pasted into <strong class="text-white">global.css</strong>. The CSS includes variables at the top that control colors, spacing, and other visual properties &mdash; adjust these to match your theme. Since the styles live directly in your theme's stylesheet, you have full control over every rule.</p>
+                </div>
+            </section>
+
+            <!-- Template Injections -->
+            <section id="template-injections" class="mb-16">
+                <h2 class="text-2xl font-bold text-white mb-4">Template Injections</h2>
+                <p class="text-slate-400 mb-6">The plugin modifies four core MyBB templates during activation. Understanding these injection points helps you control where plugin content appears.</p>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm border border-slate-800 rounded-xl overflow-hidden">
+                        <thead>
+                            <tr class="bg-slate-900">
+                                <th class="text-left px-4 py-3 text-slate-300 font-semibold">Template</th>
+                                <th class="text-left px-4 py-3 text-slate-300 font-semibold">Injection Point</th>
+                                <th class="text-left px-4 py-3 text-slate-300 font-semibold">Variable Inserted</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <tr class="bg-slate-950">
+                                <td class="px-4 py-3"><code class="text-blue-400">postbit</code></td>
+                                <td class="px-4 py-3 text-slate-400">After <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">{$post['user_details']}</code></td>
+                                <td class="px-4 py-3"><code class="text-emerald-400">{$post['credits_display']}</code></td>
+                            </tr>
+                            <tr class="bg-slate-900/50">
+                                <td class="px-4 py-3"><code class="text-blue-400">postbit_classic</code></td>
+                                <td class="px-4 py-3 text-slate-400">After <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">{$post['user_details']}</code></td>
+                                <td class="px-4 py-3"><code class="text-emerald-400">{$post['credits_display']}</code></td>
+                            </tr>
+                            <tr class="bg-slate-950">
+                                <td class="px-4 py-3"><code class="text-blue-400">member_profile</code></td>
+                                <td class="px-4 py-3 text-slate-400">Before <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">{$footer}</code></td>
+                                <td class="px-4 py-3"><code class="text-emerald-400">{$credits_profile}</code></td>
+                            </tr>
+                            <tr class="bg-slate-900/50">
+                                <td class="px-4 py-3"><code class="text-blue-400">header</code></td>
+                                <td class="px-4 py-3 text-slate-400">Before <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">{$awaitingusers}</code></td>
+                                <td class="px-4 py-3"><code class="text-emerald-400">{$credits_ad_header}</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 mt-4">
+                    <p class="text-slate-300 font-semibold text-sm mb-2">If your theme uses different template names</p>
+                    <p class="text-slate-400 text-sm">Some custom themes rename or restructure these templates. If the plugin's injections don't appear, check that your theme's postbit template still contains <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">{$post['user_details']}</code> and your header template contains <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">{$awaitingusers}</code>. If not, you'll need to manually add the plugin's template variables to your theme's templates.</p>
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- VISUAL FEATURES -->
+            <!-- ============================================ -->
+
+            <!-- Postbit Background -->
+            <section id="postbit-background" class="mb-16">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-purple-600/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2"/></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Postbit Background</h2>
+                </div>
+                <p class="text-slate-400 mb-6">Users can purchase custom postbit backgrounds from the shop. The plugin supports three formats: solid colors, CSS gradients, and background images.</p>
+
+                <!-- How it renders -->
+                <h3 class="text-lg font-semibold text-white mb-3">How It Renders</h3>
+                <p class="text-slate-400 mb-4 text-sm">The plugin generates a <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">&lt;style&gt;</code> tag per post that targets the post's author panel using the post ID:</p>
+
+                <div class="code-block bg-slate-900 border border-slate-800 rounded-xl p-5 mb-6 overflow-x-auto">
+                    <span class="copy-label">HTML Output</span>
+                    <pre class="text-sm leading-relaxed"><code class="text-slate-300"><span class="text-slate-500">&lt;!-- Generated for each post with a custom background --&gt;</span>
+<span class="text-pink-400">&lt;style&gt;</span>
+  <span class="text-blue-400">#post_<span class="text-amber-300">{PID}</span> .post_author</span> {
+    <span class="text-emerald-400">background-color: #1a1a2e !important;</span>
+  }
+<span class="text-pink-400">&lt;/style&gt;</span></code></pre>
+                </div>
+
+                <h3 class="text-lg font-semibold text-white mb-3">Supported Formats</h3>
+                <div class="grid md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <div class="w-full h-12 rounded-lg mb-3" style="background-color: #1a1a2e;"></div>
+                        <p class="text-white font-semibold text-sm mb-1">Solid Color</p>
+                        <p class="text-slate-500 text-xs mb-2">Hex color codes</p>
+                        <code class="text-xs text-emerald-400 bg-slate-800 px-2 py-1 rounded block">#1a1a2e</code>
+                        <p class="text-slate-500 text-xs mt-2">Generates: <code class="text-slate-400">background-color: #1a1a2e !important;</code></p>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <div class="w-full h-12 rounded-lg mb-3" style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
+                        <p class="text-white font-semibold text-sm mb-1">CSS Gradient</p>
+                        <p class="text-slate-500 text-xs mb-2">linear, radial, or conic</p>
+                        <code class="text-xs text-emerald-400 bg-slate-800 px-2 py-1 rounded block break-all">linear-gradient(135deg, #667eea, #764ba2)</code>
+                        <p class="text-slate-500 text-xs mt-2">Generates: <code class="text-slate-400">background: [value] !important;</code></p>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <div class="w-full h-12 rounded-lg mb-3 bg-slate-700 flex items-center justify-center text-slate-500 text-xs">image</div>
+                        <p class="text-white font-semibold text-sm mb-1">Image URL</p>
+                        <p class="text-slate-500 text-xs mb-2">Any valid image path</p>
+                        <code class="text-xs text-emerald-400 bg-slate-800 px-2 py-1 rounded block break-all">images/postbit_bg.png</code>
+                        <p class="text-slate-500 text-xs mt-2">Generates: <code class="text-slate-400">background: url(...) center/cover no-repeat !important;</code></p>
+                    </div>
+                </div>
+
+                <h3 class="text-lg font-semibold text-white mb-3">Target Element</h3>
+                <p class="text-slate-400 text-sm mb-4">The plugin targets <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">#post_{PID} .post_author</code>. This is the standard MyBB postbit author panel. If your custom theme uses a different class name or structure for the author panel, the backgrounds won't apply.</p>
+
+                <div class="bg-red-950/30 border border-red-900/50 rounded-xl p-5 mb-6">
+                    <p class="text-red-400 font-semibold text-sm mb-2">Custom Theme Fix</p>
+                    <p class="text-slate-400 text-sm mb-3">If your theme does <strong class="text-white">not</strong> use <code class="text-red-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">.post_author</code>, you need to edit the plugin's rendering function. Open <code class="text-slate-300">inc/plugins/credits/hooks.php</code> around line 117 and change the CSS selector:</p>
+                    <div class="bg-slate-900 rounded-lg p-4 overflow-x-auto">
+                        <pre class="text-sm"><code><span class="text-slate-500">// Default - targets .post_author</span>
+<span class="text-blue-400">$post</span>[<span class="text-amber-300">'credits_bg_style'</span>] = <span class="text-emerald-400">'&lt;style&gt;#post_'</span> . <span class="text-blue-400">$post_pid</span> . <span class="text-emerald-400">' .post_author { '</span> . <span class="text-blue-400">$bg_css</span> . <span class="text-emerald-400">' }&lt;/style&gt;'</span>;
+
+<span class="text-slate-500">// Change .post_author to your theme's class, e.g.:</span>
+<span class="text-slate-500">// .post_author  -->  .author_info</span>
+<span class="text-slate-500">// .post_author  -->  .postbit-left</span>
+<span class="text-slate-500">// .post_author  -->  .post_sidebar</span></code></pre>
+                    </div>
+                </div>
+
+                <h3 class="text-lg font-semibold text-white mb-3">Styling Tips for Theme Developers</h3>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 overflow-x-auto">
+                    <pre class="text-sm leading-relaxed"><code><span class="text-slate-500">/* Make postbit backgrounds look good with rounded corners */</span>
+<span class="text-blue-400">.post_author</span> {
+    <span class="text-emerald-400">border-radius</span>: 8px;
+    <span class="text-emerald-400">overflow</span>: hidden;
+    <span class="text-emerald-400">transition</span>: background 0.3s ease;
+}
+
+<span class="text-slate-500">/* Ensure text remains readable on custom backgrounds */</span>
+<span class="text-blue-400">.post_author</span> {
+    <span class="text-emerald-400">text-shadow</span>: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+<span class="text-slate-500">/* Add padding so background has room to breathe */</span>
+<span class="text-blue-400">.post_author</span> {
+    <span class="text-emerald-400">padding</span>: 12px;
+}
+
+<span class="text-slate-500">/* If using dark backgrounds, ensure links stay visible */</span>
+<span class="text-blue-400">.post_author a</span> {
+    <span class="text-emerald-400">color</span>: #93c5fd;
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- Username Effects -->
+            <section id="username-effects" class="mb-16">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-pink-600/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Username Effects</h2>
+                </div>
+                <p class="text-slate-400 mb-6">Users can purchase animated or styled effects for their username. The plugin wraps the username link in a <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">&lt;span&gt;</code> with a CSS class that applies the effect.</p>
+
+                <h3 class="text-lg font-semibold text-white mb-3">HTML Structure</h3>
+                <div class="code-block bg-slate-900 border border-slate-800 rounded-xl p-5 mb-6 overflow-x-auto">
+                    <pre class="text-sm"><code><span class="text-pink-400">&lt;span</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"credits_fx_{EFFECT}"</span><span class="text-pink-400">&gt;</span>
+    <span class="text-pink-400">&lt;a</span> <span class="text-blue-400">href=</span><span class="text-amber-300">"member.php?action=profile&uid=123"</span><span class="text-pink-400">&gt;</span>Username<span class="text-pink-400">&lt;/a&gt;</span>
+<span class="text-pink-400">&lt;/span&gt;</span></code></pre>
+                </div>
+
+                <h3 class="text-lg font-semibold text-white mb-3">Live Demos &amp; CSS</h3>
+                <div class="space-y-4 mb-6">
+                    <!-- Rainbow -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <p class="text-white font-semibold text-sm">Rainbow</p>
+                                <p class="text-slate-500 text-xs">Class: <code class="text-pink-400">.credits_fx_rainbow a</code></p>
+                            </div>
+                            <div class="demo-rainbow text-lg font-semibold"><a href="javascript:void(0)">Username</a></div>
+                        </div>
+                        <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-xs leading-relaxed"><code><span class="text-blue-400">.credits_fx_rainbow a</span> { <span class="text-emerald-400">animation</span>: credits_rainbow 3s linear infinite; }
+<span class="text-blue-400">@keyframes credits_rainbow</span> {
+    0%   { <span class="text-emerald-400">color</span>: #ff0000; }  17%  { <span class="text-emerald-400">color</span>: #ff8800; }
+    33%  { <span class="text-emerald-400">color</span>: #ffff00; }  50%  { <span class="text-emerald-400">color</span>: #00ff00; }
+    67%  { <span class="text-emerald-400">color</span>: #0088ff; }  83%  { <span class="text-emerald-400">color</span>: #8800ff; }
+    100% { <span class="text-emerald-400">color</span>: #ff0000; }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Glow -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <p class="text-white font-semibold text-sm">Glow</p>
+                                <p class="text-slate-500 text-xs">Class: <code class="text-pink-400">.credits_fx_glow a</code></p>
+                            </div>
+                            <div class="demo-glow text-lg font-semibold"><a href="javascript:void(0)">Username</a></div>
+                        </div>
+                        <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-xs leading-relaxed"><code><span class="text-blue-400">.credits_fx_glow a</span> { <span class="text-emerald-400">animation</span>: credits_glow 2s ease-in-out infinite alternate; }
+<span class="text-blue-400">@keyframes credits_glow</span> {
+    from { <span class="text-emerald-400">text-shadow</span>: 0 0 5px currentColor; }
+    to   { <span class="text-emerald-400">text-shadow</span>: 0 0 15px currentColor, 0 0 30px currentColor; }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Sparkle -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <p class="text-white font-semibold text-sm">Sparkle</p>
+                                <p class="text-slate-500 text-xs">Class: <code class="text-pink-400">.credits_fx_sparkle a</code></p>
+                            </div>
+                            <div class="demo-sparkle text-lg font-semibold"><a href="javascript:void(0)">Username</a></div>
+                        </div>
+                        <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-xs leading-relaxed"><code><span class="text-blue-400">.credits_fx_sparkle a</span> {
+    <span class="text-emerald-400">background</span>: linear-gradient(90deg, currentColor 40%, #fff 50%, currentColor 60%);
+    <span class="text-emerald-400">background-size</span>: 200%;
+    <span class="text-emerald-400">-webkit-background-clip</span>: text;  <span class="text-emerald-400">background-clip</span>: text;
+    <span class="text-emerald-400">-webkit-text-fill-color</span>: transparent;
+    <span class="text-emerald-400">animation</span>: credits_sparkle 2s linear infinite;
+}
+<span class="text-blue-400">@keyframes credits_sparkle</span> {
+    0%   { <span class="text-emerald-400">background-position</span>: 200%; }
+    100% { <span class="text-emerald-400">background-position</span>: -200%; }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Shadow -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <p class="text-white font-semibold text-sm">Shadow</p>
+                                <p class="text-slate-500 text-xs">Class: <code class="text-pink-400">.credits_fx_shadow a</code></p>
+                            </div>
+                            <div class="demo-shadow text-lg font-semibold"><a href="javascript:void(0)">Username</a></div>
+                        </div>
+                        <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-xs"><code><span class="text-blue-400">.credits_fx_shadow a</span> { <span class="text-emerald-400">text-shadow</span>: 2px 2px 4px rgba(0,0,0,0.5); }</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Bold -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <p class="text-white font-semibold text-sm">Bold</p>
+                                <p class="text-slate-500 text-xs">Class: <code class="text-pink-400">.credits_fx_bold a</code></p>
+                            </div>
+                            <div class="demo-bold text-lg font-semibold"><a href="javascript:void(0)">Username</a></div>
+                        </div>
+                        <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-xs"><code><span class="text-blue-400">.credits_fx_bold a</span> { <span class="text-emerald-400">font-weight</span>: 900; <span class="text-emerald-400">letter-spacing</span>: 0.5px; }</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Gradient -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <p class="text-white font-semibold text-sm">Gradient</p>
+                                <p class="text-slate-500 text-xs">Class: <code class="text-pink-400">.credits_fx_gradient a</code></p>
+                            </div>
+                            <div class="demo-gradient text-lg font-semibold"><a href="javascript:void(0)">Username</a></div>
+                        </div>
+                        <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-xs leading-relaxed"><code><span class="text-blue-400">.credits_fx_gradient a</span> {
+    <span class="text-emerald-400">background</span>: linear-gradient(135deg, #f06, #48f, #0cf);
+    <span class="text-emerald-400">-webkit-background-clip</span>: text;  <span class="text-emerald-400">background-clip</span>: text;
+    <span class="text-emerald-400">-webkit-text-fill-color</span>: transparent;
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-purple-950/30 border border-purple-900/50 rounded-xl p-5">
+                    <p class="text-purple-400 font-semibold text-sm mb-2">Customizing Effects for Your Theme</p>
+                    <p class="text-slate-400 text-sm">Override any effect in your theme's stylesheet. For example, to change the gradient colors: <code class="text-purple-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">.credits_fx_gradient a { background: linear-gradient(90deg, #your, #colors); }</code></p>
+                </div>
+            </section>
+
+            <!-- Username Colors -->
+            <section id="username-colors" class="mb-16">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-cyan-600/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Username Colors</h2>
+                </div>
+                <p class="text-slate-400 mb-6">Users can purchase a custom hex color that overrides their username's default color (including usergroup color).</p>
+
+                <h3 class="text-lg font-semibold text-white mb-3">HTML Structure</h3>
+                <div class="code-block bg-slate-900 border border-slate-800 rounded-xl p-5 mb-6 overflow-x-auto">
+                    <pre class="text-sm"><code><span class="text-pink-400">&lt;span</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"credits_ucolor"</span> <span class="text-blue-400">style=</span><span class="text-amber-300">"--credits-ucolor: #ff6b6b;"</span><span class="text-pink-400">&gt;</span>
+    <span class="text-pink-400">&lt;a</span> <span class="text-blue-400">href=</span><span class="text-amber-300">"..."</span> <span class="text-blue-400">style=</span><span class="text-amber-300">"color: #0066cc;"</span><span class="text-pink-400">&gt;</span>Username<span class="text-pink-400">&lt;/a&gt;</span>
+<span class="text-pink-400">&lt;/span&gt;</span></code></pre>
+                </div>
+
+                <h3 class="text-lg font-semibold text-white mb-3">CSS Mechanism</h3>
+                <p class="text-slate-400 text-sm mb-4">Uses a CSS custom property (<code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">--credits-ucolor</code>) with <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">!important</code> to override both usergroup colors and inline styles:</p>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 overflow-x-auto">
+                    <pre class="text-sm"><code><span class="text-blue-400">.credits_ucolor</span>,
+<span class="text-blue-400">.credits_ucolor *</span> {
+    <span class="text-emerald-400">color</span>: var(--credits-ucolor) <span class="text-pink-400">!important</span>;
+}</code></pre>
+                </div>
+
+                <div class="bg-amber-950/30 border border-amber-900/50 rounded-xl p-5 mt-4">
+                    <p class="text-amber-400 font-semibold text-sm mb-2">Important Note</p>
+                    <p class="text-slate-400 text-sm">The <code class="text-amber-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">!important</code> is necessary because MyBB applies usergroup colors as inline <code class="text-amber-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">style="color: ..."</code> attributes on username links. The CSS custom property approach is the cleanest way to override inline styles without JavaScript.</p>
+                </div>
+            </section>
+
+            <!-- Awards & Badges -->
+            <section id="awards-badges" class="mb-16">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-amber-600/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Awards &amp; Badges</h2>
+                </div>
+
+                <h3 class="text-lg font-semibold text-white mb-3">Data Format</h3>
+                <p class="text-slate-400 text-sm mb-4">Awards are stored as a JSON array of image paths in the user's <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">credits_awards</code> field:</p>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-6 overflow-x-auto">
+                    <pre class="text-sm"><code><span class="text-amber-300">["images/awards/gold.png", "images/awards/helper.png", "images/awards/veteran.png"]</span></code></pre>
+                </div>
+
+                <h3 class="text-lg font-semibold text-white mb-3">Postbit HTML</h3>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-4 overflow-x-auto">
+                    <pre class="text-sm"><code><span class="text-pink-400">&lt;br /&gt;</span>
+<span class="text-pink-400">&lt;span</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"credits_awards"</span><span class="text-pink-400">&gt;</span>
+    <span class="text-pink-400">&lt;img</span> <span class="text-blue-400">src=</span><span class="text-amber-300">"images/awards/gold.png"</span>
+         <span class="text-blue-400">alt=</span><span class="text-amber-300">"award"</span>
+         <span class="text-blue-400">class=</span><span class="text-amber-300">"credits_award"</span>
+         <span class="text-blue-400">style=</span><span class="text-amber-300">"vertical-align: middle; max-height: 16px; max-width: 16px; margin: 0 2px;"</span> <span class="text-pink-400">/&gt;</span>
+    <span class="text-slate-500">&lt;!-- repeated for each award --&gt;</span>
+<span class="text-pink-400">&lt;/span&gt;</span></code></pre>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <p class="text-white font-semibold text-sm mb-2">Postbit Size</p>
+                        <p class="text-slate-400 text-sm"><code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">16px x 16px</code> max dimensions</p>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <p class="text-white font-semibold text-sm mb-2">Profile Size</p>
+                        <p class="text-slate-400 text-sm"><code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">24px x 24px</code> max dimensions</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 mt-4 overflow-x-auto">
+                    <p class="text-white font-semibold text-sm mb-3">Custom Theme Override Example</p>
+                    <pre class="text-sm"><code><span class="text-slate-500">/* Make award icons larger in postbit */</span>
+<span class="text-blue-400">.credits_awards .credits_award</span> {
+    <span class="text-emerald-400">max-height</span>: 24px;
+    <span class="text-emerald-400">max-width</span>: 24px;
+    <span class="text-emerald-400">margin</span>: 0 4px;
+    <span class="text-emerald-400">transition</span>: transform 0.2s;
+}
+
+<span class="text-slate-500">/* Add hover effect */</span>
+<span class="text-blue-400">.credits_awards .credits_award:hover</span> {
+    <span class="text-emerald-400">transform</span>: scale(1.3);
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- User Icons -->
+            <section id="user-icons" class="mb-16">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-green-600/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">User Icons</h2>
+                </div>
+
+                <p class="text-slate-400 mb-4">Icons are appended directly after the username link in the postbit.</p>
+
+                <h3 class="text-lg font-semibold text-white mb-3">Postbit HTML</h3>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-4 overflow-x-auto">
+                    <pre class="text-sm"><code><span class="text-slate-500">&lt;!-- Appended after the username link --&gt;</span>
+<span class="text-pink-400">&lt;a</span> <span class="text-blue-400">href=</span><span class="text-amber-300">"member.php?..."</span><span class="text-pink-400">&gt;</span>Username<span class="text-pink-400">&lt;/a&gt;</span> <span class="text-pink-400">&lt;img</span> <span class="text-blue-400">src=</span><span class="text-amber-300">"path/to/icon.png"</span>
+     <span class="text-blue-400">alt=</span><span class="text-amber-300">""</span>
+     <span class="text-blue-400">style=</span><span class="text-amber-300">"vertical-align: middle; max-height: 16px; max-width: 16px;"</span> <span class="text-pink-400">/&gt;</span></code></pre>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <p class="text-white font-semibold text-sm mb-2">Postbit</p>
+                        <p class="text-slate-400 text-sm">16x16px, inline next to username</p>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <p class="text-white font-semibold text-sm mb-2">Profile</p>
+                        <p class="text-slate-400 text-sm">32x32px, displayed in credits profile section via <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">.credits_icon</code> class</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Booster Badge -->
+            <section id="booster-badge" class="mb-16">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-orange-600/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Booster Badge</h2>
+                </div>
+
+                <h3 class="text-lg font-semibold text-white mb-3">Postbit HTML</h3>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-4 overflow-x-auto">
+                    <pre class="text-sm"><code><span class="text-pink-400">&lt;span</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"credits_booster_badge"</span>
+      <span class="text-blue-400">style=</span><span class="text-amber-300">"color: #f90; font-size: 10px;"</span>
+      <span class="text-blue-400">title=</span><span class="text-amber-300">"XP Boost Active"</span><span class="text-pink-400">&gt;</span>[2x]<span class="text-pink-400">&lt;/span&gt;</span></code></pre>
+                </div>
+
+                <p class="text-slate-400 text-sm mb-4">Displayed inline after the credit balance in the postbit. Shows the active multiplier (e.g., <span class="text-orange-400 font-mono text-xs">[2x]</span>, <span class="text-orange-400 font-mono text-xs">[3x]</span>).</p>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 overflow-x-auto">
+                    <p class="text-white font-semibold text-sm mb-3">Custom Theme Styling</p>
+                    <pre class="text-sm"><code><span class="text-slate-500">/* Style the booster badge to match your theme */</span>
+<span class="text-blue-400">.credits_booster_badge</span> {
+    <span class="text-emerald-400">color</span>: #f59e0b;
+    <span class="text-emerald-400">font-size</span>: 11px;
+    <span class="text-emerald-400">font-weight</span>: bold;
+    <span class="text-emerald-400">background</span>: rgba(245, 158, 11, 0.1);
+    <span class="text-emerald-400">padding</span>: 1px 6px;
+    <span class="text-emerald-400">border-radius</span>: 4px;
+    <span class="text-emerald-400">margin-left</span>: 4px;
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- LAYOUT SECTIONS -->
+            <!-- ============================================ -->
+
+            <!-- Navigation -->
+            <section id="navigation" class="mb-16">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-blue-600/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Navigation Link</h2>
+                </div>
+
+                <h3 class="text-lg font-semibold text-white mb-3">HTML Structure</h3>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-4 overflow-x-auto">
+                    <pre class="text-sm"><code><span class="text-pink-400">&lt;a</span> <span class="text-blue-400">href=</span><span class="text-amber-300">"misc.php?action=credits"</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"credits_nav_link"</span><span class="text-pink-400">&gt;</span>Credits (150)<span class="text-pink-400">&lt;/a&gt;</span></code></pre>
+                </div>
+
+                <p class="text-slate-400 text-sm mb-4">The balance in parentheses is dynamically updated via AJAX using the <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">Credits.refreshNavBalance()</code> JavaScript function.</p>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 overflow-x-auto">
+                    <p class="text-white font-semibold text-sm mb-3">Styling the Nav Link</p>
+                    <pre class="text-sm"><code><span class="text-blue-400">.credits_nav_link</span> {
+    <span class="text-emerald-400">font-weight</span>: bold;
+    <span class="text-emerald-400">color</span>: #10b981;
+}
+<span class="text-blue-400">.credits_nav_link:hover</span> {
+    <span class="text-emerald-400">color</span>: #34d399;
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- Ads -->
+            <section id="ads" class="mb-16">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-rose-600/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Ad Placements</h2>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <p class="text-white font-semibold text-sm mb-2">Header Ad</p>
+                        <p class="text-slate-400 text-xs mb-3">Class: <code class="text-rose-400">.credits_ad.credits_ad_header</code></p>
+                        <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-xs"><code><span class="text-pink-400">&lt;div</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"credits_ad credits_ad_header"</span>
+     <span class="text-blue-400">style=</span><span class="text-amber-300">"text-align: center; padding: 5px; margin-bottom: 5px;"</span><span class="text-pink-400">&gt;</span>
+    <span class="text-slate-500">&lt;!-- ad content (text link or image) --&gt;</span>
+<span class="text-pink-400">&lt;/div&gt;</span></code></pre>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <p class="text-white font-semibold text-sm mb-2">Thread Header Ad</p>
+                        <p class="text-slate-400 text-xs mb-3">Class: <code class="text-rose-400">.credits_ad.credits_ad_thread_header</code></p>
+                        <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-xs"><code><span class="text-pink-400">&lt;tr&gt;&lt;td</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"trow1"</span> <span class="text-blue-400">colspan=</span><span class="text-amber-300">"2"</span> <span class="text-blue-400">style=</span><span class="text-amber-300">"text-align: center; padding: 10px;"</span><span class="text-pink-400">&gt;</span>
+    <span class="text-pink-400">&lt;div</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"credits_ad credits_ad_thread_header"</span><span class="text-pink-400">&gt;</span>
+        <span class="text-slate-500">&lt;!-- ad content --&gt;</span>
+    <span class="text-pink-400">&lt;/div&gt;</span>
+<span class="text-pink-400">&lt;/td&gt;&lt;/tr&gt;</span></code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 mt-4 overflow-x-auto">
+                    <p class="text-white font-semibold text-sm mb-3">Styling Ads</p>
+                    <pre class="text-sm"><code><span class="text-blue-400">.credits_ad</span> {
+    <span class="text-emerald-400">background</span>: #f8fafc;
+    <span class="text-emerald-400">border</span>: 1px solid #e2e8f0;
+    <span class="text-emerald-400">border-radius</span>: 6px;
+    <span class="text-emerald-400">padding</span>: 10px;
+}
+<span class="text-blue-400">.credits_ad img</span> {
+    <span class="text-emerald-400">max-width</span>: 100%;
+    <span class="text-emerald-400">max-height</span>: 90px;
+    <span class="text-emerald-400">border-radius</span>: 4px;
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- Tabs -->
+            <section id="tabs" class="mb-16">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-600/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Tab Navigation</h2>
+                </div>
+
+                <p class="text-slate-400 text-sm mb-4">The plugin's front-end pages (Leaderboard, Shop, Gifts, Achievements, Lottery, Referrals, Log) use a tab bar.</p>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-4 overflow-x-auto">
+                    <pre class="text-sm"><code><span class="text-pink-400">&lt;div</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"credits_tabs"</span><span class="text-pink-400">&gt;</span>
+    <span class="text-pink-400">&lt;a</span> <span class="text-blue-400">href=</span><span class="text-amber-300">"..."</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"credits_tab_active"</span><span class="text-pink-400">&gt;</span>Leaderboard<span class="text-pink-400">&lt;/a&gt;</span>
+    <span class="text-pink-400">&lt;a</span> <span class="text-blue-400">href=</span><span class="text-amber-300">"..."</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"credits_tab"</span><span class="text-pink-400">&gt;</span>Shop<span class="text-pink-400">&lt;/a&gt;</span>
+    <span class="text-pink-400">&lt;a</span> <span class="text-blue-400">href=</span><span class="text-amber-300">"..."</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"credits_tab"</span><span class="text-pink-400">&gt;</span>Gifts<span class="text-pink-400">&lt;/a&gt;</span>
+    <span class="text-slate-500">&lt;!-- ... more tabs --&gt;</span>
+<span class="text-pink-400">&lt;/div&gt;</span></code></pre>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 overflow-x-auto">
+                    <p class="text-white font-semibold text-sm mb-3">Default CSS &amp; Overrides</p>
+                    <pre class="text-sm leading-relaxed"><code><span class="text-slate-500">/* Default plugin styles */</span>
+<span class="text-blue-400">.credits_tabs</span> {
+    <span class="text-emerald-400">margin-bottom</span>: 10px;
+    <span class="text-emerald-400">border-bottom</span>: 2px solid #ddd;
+    <span class="text-emerald-400">display</span>: flex;
+    <span class="text-emerald-400">gap</span>: 0;
+}
+<span class="text-blue-400">.credits_tabs a.credits_tab</span>,
+<span class="text-blue-400">.credits_tabs a.credits_tab_active</span> {
+    <span class="text-emerald-400">display</span>: inline-block;
+    <span class="text-emerald-400">padding</span>: 8px 16px;
+    <span class="text-emerald-400">text-decoration</span>: none;
+    <span class="text-emerald-400">color</span>: #666;
+    <span class="text-emerald-400">border-bottom</span>: 2px solid transparent;
+    <span class="text-emerald-400">margin-bottom</span>: -2px;
+}
+<span class="text-blue-400">.credits_tabs a.credits_tab:hover</span> {
+    <span class="text-emerald-400">color</span>: #333;
+    <span class="text-emerald-400">border-bottom-color</span>: #999;
+}
+<span class="text-blue-400">.credits_tabs a.credits_tab_active</span> {
+    <span class="text-emerald-400">color</span>: #333;
+    <span class="text-emerald-400">border-bottom-color</span>: #0066cc;
+    <span class="text-emerald-400">font-weight</span>: bold;
+}
+
+<span class="text-slate-500">/* Theme override example - dark theme tabs */</span>
+<span class="text-blue-400">.credits_tabs</span> { <span class="text-emerald-400">border-bottom-color</span>: #374151; }
+<span class="text-blue-400">.credits_tabs a.credits_tab</span> { <span class="text-emerald-400">color</span>: #9ca3af; }
+<span class="text-blue-400">.credits_tabs a.credits_tab:hover</span> { <span class="text-emerald-400">color</span>: #e5e7eb; <span class="text-emerald-400">border-bottom-color</span>: #6b7280; }
+<span class="text-blue-400">.credits_tabs a.credits_tab_active</span> { <span class="text-emerald-400">color</span>: #fff; <span class="text-emerald-400">border-bottom-color</span>: #3b82f6; }</code></pre>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profile-section" class="mb-16">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-teal-600/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Profile Section</h2>
+                </div>
+
+                <p class="text-slate-400 text-sm mb-4">The plugin adds a credits table to the member profile page, injected before the footer. It uses standard MyBB table markup.</p>
+
+                <h3 class="text-lg font-semibold text-white mb-3">Profile Table Structure</h3>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-4 overflow-x-auto">
+                    <pre class="text-sm leading-relaxed"><code><span class="text-pink-400">&lt;table</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"tborder"</span><span class="text-pink-400">&gt;</span>
+  <span class="text-pink-400">&lt;tr&gt;&lt;td</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"thead"</span> <span class="text-blue-400">colspan=</span><span class="text-amber-300">"2"</span><span class="text-pink-400">&gt;</span><span class="text-emerald-400">Credits</span><span class="text-pink-400">&lt;/td&gt;&lt;/tr&gt;</span>
+
+  <span class="text-slate-500">&lt;!-- Always shown --&gt;</span>
+  <span class="text-pink-400">&lt;tr&gt;&lt;td</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"trow1"</span><span class="text-pink-400">&gt;</span>Balance<span class="text-pink-400">&lt;/td&gt;&lt;td</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"trow1"</span><span class="text-pink-400">&gt;</span>{credits}<span class="text-pink-400">&lt;/td&gt;&lt;/tr&gt;</span>
+  <span class="text-pink-400">&lt;tr&gt;&lt;td</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"trow2"</span><span class="text-pink-400">&gt;</span>Rank<span class="text-pink-400">&lt;/td&gt;&lt;td</span> <span class="text-blue-400">class=</span><span class="text-amber-300">"trow2"</span><span class="text-pink-400">&gt;</span>#{rank}<span class="text-pink-400">&lt;/td&gt;&lt;/tr&gt;</span>
+
+  <span class="text-slate-500">&lt;!-- Conditional rows (only shown if user has these) --&gt;</span>
+  {$credits_profile_icon_row}          <span class="text-slate-500">&lt;!-- User icon --&gt;</span>
+  {$credits_profile_awards_row}        <span class="text-slate-500">&lt;!-- Awards display --&gt;</span>
+  {$credits_profile_booster_row}       <span class="text-slate-500">&lt;!-- Active booster --&gt;</span>
+  {$credits_profile_bg_row}            <span class="text-slate-500">&lt;!-- Background preview --&gt;</span>
+  {$credits_profile_effect_row}        <span class="text-slate-500">&lt;!-- Username effect preview --&gt;</span>
+  {$credits_profile_achievements_row}  <span class="text-slate-500">&lt;!-- Earned achievements --&gt;</span>
+<span class="text-pink-400">&lt;/table&gt;</span></code></pre>
+                </div>
+
+                <p class="text-slate-400 text-sm">Since the profile section uses standard MyBB classes (<code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">.tborder</code>, <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">.thead</code>, <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">.trow1</code>, <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">.trow2</code>), it will automatically inherit your theme's table styling.</p>
+            </section>
+
+            <!-- Credit Log -->
+            <section id="credit-log" class="mb-16">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-violet-600/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Credit Log</h2>
+                </div>
+
+                <p class="text-slate-400 text-sm mb-4">Transaction amounts in the credit log use color-coded classes:</p>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="text-emerald-500 font-bold text-lg">+25</span>
+                            <p class="text-white font-semibold text-sm">Positive Amount</p>
+                        </div>
+                        <p class="text-slate-400 text-xs mb-2">Class: <code class="text-emerald-400">.credits_positive</code></p>
+                        <code class="text-xs text-slate-400">color: #059669</code>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="text-red-500 font-bold text-lg">-10</span>
+                            <p class="text-white font-semibold text-sm">Negative Amount</p>
+                        </div>
+                        <p class="text-slate-400 text-xs mb-2">Class: <code class="text-red-400">.credits_negative</code></p>
+                        <code class="text-xs text-slate-400">color: #dc2626</code>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- REFERENCE TABLES -->
+            <!-- ============================================ -->
+
+            <!-- All CSS Classes -->
+            <section id="css-classes" class="mb-16">
+                <h2 class="text-2xl font-bold text-white mb-4">All CSS Classes Reference</h2>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm border border-slate-800 rounded-xl overflow-hidden">
+                        <thead>
+                            <tr class="bg-slate-900">
+                                <th class="text-left px-4 py-3 text-slate-300 font-semibold">Class</th>
+                                <th class="text-left px-4 py-3 text-slate-300 font-semibold">Element</th>
+                                <th class="text-left px-4 py-3 text-slate-300 font-semibold">Location</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_ucolor</code></td><td class="px-4 py-2.5 text-slate-400">Username color wrapper</td><td class="px-4 py-2.5 text-slate-500">Postbit</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_fx_rainbow</code></td><td class="px-4 py-2.5 text-slate-400">Rainbow effect wrapper</td><td class="px-4 py-2.5 text-slate-500">Postbit</td></tr>
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_fx_glow</code></td><td class="px-4 py-2.5 text-slate-400">Glow effect wrapper</td><td class="px-4 py-2.5 text-slate-500">Postbit</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_fx_sparkle</code></td><td class="px-4 py-2.5 text-slate-400">Sparkle effect wrapper</td><td class="px-4 py-2.5 text-slate-500">Postbit</td></tr>
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_fx_shadow</code></td><td class="px-4 py-2.5 text-slate-400">Shadow effect wrapper</td><td class="px-4 py-2.5 text-slate-500">Postbit</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_fx_bold</code></td><td class="px-4 py-2.5 text-slate-400">Bold effect wrapper</td><td class="px-4 py-2.5 text-slate-500">Postbit</td></tr>
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_fx_gradient</code></td><td class="px-4 py-2.5 text-slate-400">Gradient effect wrapper</td><td class="px-4 py-2.5 text-slate-500">Postbit</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_awards</code></td><td class="px-4 py-2.5 text-slate-400">Awards container span</td><td class="px-4 py-2.5 text-slate-500">Postbit, Profile</td></tr>
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_award</code></td><td class="px-4 py-2.5 text-slate-400">Individual award image</td><td class="px-4 py-2.5 text-slate-500">Postbit, Profile</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_icon</code></td><td class="px-4 py-2.5 text-slate-400">User icon image</td><td class="px-4 py-2.5 text-slate-500">Profile</td></tr>
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_booster_badge</code></td><td class="px-4 py-2.5 text-slate-400">Booster multiplier badge</td><td class="px-4 py-2.5 text-slate-500">Postbit</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_nav_link</code></td><td class="px-4 py-2.5 text-slate-400">Nav bar credits link</td><td class="px-4 py-2.5 text-slate-500">Header</td></tr>
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_ad</code></td><td class="px-4 py-2.5 text-slate-400">Ad container (base)</td><td class="px-4 py-2.5 text-slate-500">Header, Thread</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_ad_header</code></td><td class="px-4 py-2.5 text-slate-400">Header position ad</td><td class="px-4 py-2.5 text-slate-500">Header</td></tr>
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_ad_thread_header</code></td><td class="px-4 py-2.5 text-slate-400">Thread position ad</td><td class="px-4 py-2.5 text-slate-500">Thread</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_tabs</code></td><td class="px-4 py-2.5 text-slate-400">Tab bar container</td><td class="px-4 py-2.5 text-slate-500">Credits pages</td></tr>
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_tab</code></td><td class="px-4 py-2.5 text-slate-400">Inactive tab link</td><td class="px-4 py-2.5 text-slate-500">Credits pages</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_tab_active</code></td><td class="px-4 py-2.5 text-slate-400">Active tab link</td><td class="px-4 py-2.5 text-slate-500">Credits pages</td></tr>
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_positive</code></td><td class="px-4 py-2.5 text-slate-400">Positive credit amount</td><td class="px-4 py-2.5 text-slate-500">Credit log</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-blue-400">.credits_negative</code></td><td class="px-4 py-2.5 text-slate-400">Negative credit amount</td><td class="px-4 py-2.5 text-slate-500">Credit log</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- All Template Variables -->
+            <section id="template-variables" class="mb-16">
+                <h2 class="text-2xl font-bold text-white mb-4">All Template Variables Reference</h2>
+
+                <h3 class="text-lg font-semibold text-white mb-3">Global Scope</h3>
+                <div class="overflow-x-auto mb-6">
+                    <table class="w-full text-sm border border-slate-800 rounded-xl overflow-hidden">
+                        <thead>
+                            <tr class="bg-slate-900">
+                                <th class="text-left px-4 py-3 text-slate-300 font-semibold">Variable</th>
+                                <th class="text-left px-4 py-3 text-slate-300 font-semibold">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-emerald-400">{$credits_ad_header}</code></td><td class="px-4 py-2.5 text-slate-400">Header ad HTML (injected in header)</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-emerald-400">{$credits_nav_link}</code></td><td class="px-4 py-2.5 text-slate-400">Navigation bar credits link</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-lg font-semibold text-white mb-3">Postbit Scope <span class="text-slate-500 text-sm font-normal">(available inside $post)</span></h3>
+                <div class="overflow-x-auto mb-6">
+                    <table class="w-full text-sm border border-slate-800 rounded-xl overflow-hidden">
+                        <thead>
+                            <tr class="bg-slate-900">
+                                <th class="text-left px-4 py-3 text-slate-300 font-semibold">Variable</th>
+                                <th class="text-left px-4 py-3 text-slate-300 font-semibold">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-emerald-400">{$post['credits_display']}</code></td><td class="px-4 py-2.5 text-slate-400">Complete credits row (balance + booster + awards)</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-emerald-400">{$post['credits']}</code></td><td class="px-4 py-2.5 text-slate-400">Raw credit balance number</td></tr>
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-emerald-400">{$post['credits_bg_style']}</code></td><td class="px-4 py-2.5 text-slate-400">Postbit background &lt;style&gt; tag</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-emerald-400">{$post['credits_booster_badge']}</code></td><td class="px-4 py-2.5 text-slate-400">Booster badge HTML span</td></tr>
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-emerald-400">{$post['credits_awards_display']}</code></td><td class="px-4 py-2.5 text-slate-400">Awards images HTML</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-emerald-400">{$post['credits_icon']}</code></td><td class="px-4 py-2.5 text-slate-400">Icon image path (raw value)</td></tr>
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-emerald-400">{$post['credits_username_color']}</code></td><td class="px-4 py-2.5 text-slate-400">Hex color code (raw value)</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-emerald-400">{$post['credits_username_effect']}</code></td><td class="px-4 py-2.5 text-slate-400">Effect name string (raw value)</td></tr>
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-emerald-400">{$post['credits_postbit_bg']}</code></td><td class="px-4 py-2.5 text-slate-400">Background value (raw value)</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-emerald-400">{$post['credits_awards']}</code></td><td class="px-4 py-2.5 text-slate-400">JSON array of award paths (raw value)</td></tr>
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-emerald-400">{$post['profilelink']}</code></td><td class="px-4 py-2.5 text-slate-400">Modified by plugin to include color/effect/icon wrappers</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-lg font-semibold text-white mb-3">Profile Scope</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm border border-slate-800 rounded-xl overflow-hidden">
+                        <thead>
+                            <tr class="bg-slate-900">
+                                <th class="text-left px-4 py-3 text-slate-300 font-semibold">Variable</th>
+                                <th class="text-left px-4 py-3 text-slate-300 font-semibold">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-emerald-400">{$credits_profile}</code></td><td class="px-4 py-2.5 text-slate-400">Complete profile credits table</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-emerald-400">{$credits_profile_icon_row}</code></td><td class="px-4 py-2.5 text-slate-400">Icon display row</td></tr>
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-emerald-400">{$credits_profile_awards_row}</code></td><td class="px-4 py-2.5 text-slate-400">Awards display row</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-emerald-400">{$credits_profile_booster_row}</code></td><td class="px-4 py-2.5 text-slate-400">Booster status row</td></tr>
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-emerald-400">{$credits_profile_bg_row}</code></td><td class="px-4 py-2.5 text-slate-400">Background preview row</td></tr>
+                            <tr class="bg-slate-900/50"><td class="px-4 py-2.5"><code class="text-emerald-400">{$credits_profile_effect_row}</code></td><td class="px-4 py-2.5 text-slate-400">Username effect preview row</td></tr>
+                            <tr class="bg-slate-950"><td class="px-4 py-2.5"><code class="text-emerald-400">{$credits_profile_achievements_row}</code></td><td class="px-4 py-2.5 text-slate-400">Achievements display row</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- JavaScript API -->
+            <section id="javascript-api" class="mb-16">
+                <h2 class="text-2xl font-bold text-white mb-4">JavaScript API</h2>
+                <p class="text-slate-400 text-sm mb-4">The plugin exposes a global <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">Credits</code> object loaded from <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">jscripts/credits.js</code>. Requires jQuery.</p>
+
+                <div class="space-y-4">
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <p class="text-white font-semibold text-sm mb-1">Credits.getBalance(callback)</p>
+                        <p class="text-slate-500 text-xs mb-3">Fetches the current user's credit balance via AJAX.</p>
+                        <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-xs"><code>Credits.getBalance(<span class="text-blue-400">function</span>(<span class="text-amber-300">balance</span>) {
+    console.log(<span class="text-emerald-400">'User has '</span> + balance + <span class="text-emerald-400">' credits'</span>);
+});</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <p class="text-white font-semibold text-sm mb-1">Credits.refreshNavBalance()</p>
+                        <p class="text-slate-500 text-xs mb-3">Updates the credit count shown in the navigation bar link. Call this after any action that modifies the user's balance.</p>
+                        <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-xs"><code><span class="text-slate-500">// After a purchase completes</span>
+Credits.refreshNavBalance();</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <p class="text-white font-semibold text-sm mb-1">Credits.initColorPicker()</p>
+                        <p class="text-slate-500 text-xs mb-3">Syncs color picker and hex text input fields in the shop. Called automatically on page load.</p>
+                        <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-xs"><code><span class="text-slate-500">// Binds input[name="purchase_value"] (color) <--> input[name="purchase_value_hex"] (text)</span></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <p class="text-white font-semibold text-sm mb-1">AJAX Endpoint</p>
+                        <p class="text-slate-500 text-xs mb-3">The plugin registers an AJAX handler at:</p>
+                        <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-xs"><code><span class="text-blue-400">POST</span> xmlhttp.php?action=credits&operation=get_balance&my_post_key={key}
+<span class="text-slate-500">// Returns:</span> { <span class="text-amber-300">"success"</span>: <span class="text-emerald-400">true</span>, <span class="text-amber-300">"balance"</span>: <span class="text-emerald-400">150</span> }</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Database Fields -->
+            <section id="database-fields" class="mb-16">
+                <h2 class="text-2xl font-bold text-white mb-4">User Database Fields</h2>
+                <p class="text-slate-400 text-sm mb-4">The plugin adds these columns to the <code class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-xs">mybb_users</code> table. These are the raw values used for rendering:</p>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm border border-slate-800 rounded-xl overflow-hidden">
+                        <thead>
+                            <tr class="bg-slate-900">
+                                <th class="text-left px-4 py-3 text-slate-300 font-semibold">Column</th>
+                                <th class="text-left px-4 py-3 text-slate-300 font-semibold">Type</th>
+                                <th class="text-left px-4 py-3 text-slate-300 font-semibold">Example Value</th>
+                                <th class="text-left px-4 py-3 text-slate-300 font-semibold">Used For</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <tr class="bg-slate-950">
+                                <td class="px-4 py-2.5"><code class="text-amber-400">credits</code></td>
+                                <td class="px-4 py-2.5 text-slate-500">INT UNSIGNED</td>
+                                <td class="px-4 py-2.5"><code class="text-slate-400">250</code></td>
+                                <td class="px-4 py-2.5 text-slate-400">Current balance</td>
+                            </tr>
+                            <tr class="bg-slate-900/50">
+                                <td class="px-4 py-2.5"><code class="text-amber-400">credits_last_login_bonus</code></td>
+                                <td class="px-4 py-2.5 text-slate-500">INT</td>
+                                <td class="px-4 py-2.5"><code class="text-slate-400">1707350400</code></td>
+                                <td class="px-4 py-2.5 text-slate-400">Last login bonus timestamp</td>
+                            </tr>
+                            <tr class="bg-slate-950">
+                                <td class="px-4 py-2.5"><code class="text-amber-400">credits_icon</code></td>
+                                <td class="px-4 py-2.5 text-slate-500">VARCHAR(255)</td>
+                                <td class="px-4 py-2.5"><code class="text-slate-400">images/icons/star.png</code></td>
+                                <td class="px-4 py-2.5 text-slate-400">User icon path</td>
+                            </tr>
+                            <tr class="bg-slate-900/50">
+                                <td class="px-4 py-2.5"><code class="text-amber-400">credits_username_color</code></td>
+                                <td class="px-4 py-2.5 text-slate-500">VARCHAR(7)</td>
+                                <td class="px-4 py-2.5"><code class="text-slate-400">#ff6b6b</code></td>
+                                <td class="px-4 py-2.5 text-slate-400">Username color override</td>
+                            </tr>
+                            <tr class="bg-slate-950">
+                                <td class="px-4 py-2.5"><code class="text-amber-400">credits_awards</code></td>
+                                <td class="px-4 py-2.5 text-slate-500">TEXT</td>
+                                <td class="px-4 py-2.5"><code class="text-slate-400">["img/a.png","img/b.png"]</code></td>
+                                <td class="px-4 py-2.5 text-slate-400">Award image paths (JSON)</td>
+                            </tr>
+                            <tr class="bg-slate-900/50">
+                                <td class="px-4 py-2.5"><code class="text-amber-400">credits_postbit_bg</code></td>
+                                <td class="px-4 py-2.5 text-slate-500">VARCHAR(255)</td>
+                                <td class="px-4 py-2.5"><code class="text-slate-400">linear-gradient(135deg, ...)</code></td>
+                                <td class="px-4 py-2.5 text-slate-400">Postbit background value</td>
+                            </tr>
+                            <tr class="bg-slate-950">
+                                <td class="px-4 py-2.5"><code class="text-amber-400">credits_username_effect</code></td>
+                                <td class="px-4 py-2.5 text-slate-500">VARCHAR(50)</td>
+                                <td class="px-4 py-2.5"><code class="text-slate-400">rainbow</code></td>
+                                <td class="px-4 py-2.5 text-slate-400">Active username effect</td>
+                            </tr>
+                            <tr class="bg-slate-900/50">
+                                <td class="px-4 py-2.5"><code class="text-amber-400">credits_referral_code</code></td>
+                                <td class="px-4 py-2.5 text-slate-500">VARCHAR(12)</td>
+                                <td class="px-4 py-2.5"><code class="text-slate-400">a3f8b2c1e9d0</code></td>
+                                <td class="px-4 py-2.5 text-slate-400">Unique referral code</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Complete Override Starter -->
+            <section id="complete-override" class="mb-16">
+                <h2 class="text-2xl font-bold text-white mb-4">Complete CSS Override Starter</h2>
+                <p class="text-slate-400 text-sm mb-4">Copy this into your theme's stylesheet as a starting point. Uncomment and modify the sections you want to customize.</p>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 overflow-x-auto">
+                    <pre class="text-sm leading-relaxed"><code><span class="text-slate-500">/* ============================================
+   Credits Plugin - Theme Override Starter
+   Add this to your theme's global.css
+   ============================================ */</span>
+
+<span class="text-slate-500">/* --- Navigation Link --- */</span>
+<span class="text-slate-500">/*
+.credits_nav_link {
+    font-weight: bold;
+    color: inherit;
+}
+*/</span>
+
+<span class="text-slate-500">/* --- Tab Navigation --- */</span>
+<span class="text-slate-500">/*
+.credits_tabs {
+    border-bottom-color: #374151;
+}
+.credits_tabs a.credits_tab {
+    color: #9ca3af;
+}
+.credits_tabs a.credits_tab:hover {
+    color: #e5e7eb;
+    border-bottom-color: #6b7280;
+}
+.credits_tabs a.credits_tab_active {
+    color: #fff;
+    border-bottom-color: #3b82f6;
+}
+*/</span>
+
+<span class="text-slate-500">/* --- Awards --- */</span>
+<span class="text-slate-500">/*
+.credits_awards .credits_award {
+    max-height: 20px;
+    max-width: 20px;
+    margin: 0 3px;
+    transition: transform 0.2s;
+}
+.credits_awards .credits_award:hover {
+    transform: scale(1.3);
+}
+*/</span>
+
+<span class="text-slate-500">/* --- Booster Badge --- */</span>
+<span class="text-slate-500">/*
+.credits_booster_badge {
+    color: #f59e0b;
+    font-size: 11px;
+    font-weight: bold;
+    background: rgba(245, 158, 11, 0.15);
+    padding: 1px 6px;
+    border-radius: 4px;
+}
+*/</span>
+
+<span class="text-slate-500">/* --- Ad Containers --- */</span>
+<span class="text-slate-500">/*
+.credits_ad {
+    background: rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 6px;
+    padding: 10px;
+}
+*/</span>
+
+<span class="text-slate-500">/* --- Credit Log Colors --- */</span>
+<span class="text-slate-500">/*
+.credits_positive { color: #10b981; }
+.credits_negative { color: #ef4444; }
+*/</span>
+
+<span class="text-slate-500">/* --- Username Effects Override --- */</span>
+<span class="text-slate-500">/*
+.credits_fx_gradient a {
+    background: linear-gradient(90deg, #your, #custom, #colors);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+*/</span>
+
+<span class="text-slate-500">/* --- Postbit Background Polish --- */</span>
+<span class="text-slate-500">/*
+.post_author {
+    border-radius: 8px;
+    overflow: hidden;
+    transition: background 0.3s ease;
+}
+*/</span></code></pre>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="border-t border-slate-800 pt-8 pb-12 text-center">
+                <p class="text-slate-600 text-sm">Credits Plugin v1.2.0 &middot; Theme Integration Guide</p>
+                <p class="text-slate-700 text-xs mt-1">by joogiebear &middot; MIT License</p>
+            </footer>
+
+        </main>
+    </div>
+
+</body>
+</html>
