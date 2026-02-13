@@ -10,49 +10,6 @@ if (!defined('IN_MYBB') || !defined('IN_ADMINCP')) {
     die('This file cannot be accessed directly.');
 }
 
-/**
- * Add Credits link to the ACP Users & Groups menu.
- *
- * @param array $sub_menu
- */
-function credits_admin_menu(&$sub_menu)
-{
-    global $lang;
-    $lang->load('credits', false, true);
-
-    $sub_menu[] = array(
-        'id'    => 'credits',
-        'title' => $lang->credits_admin_menu,
-        'link'  => 'index.php?module=user-credits',
-    );
-}
-
-/**
- * Register the Credits action handler in ACP.
- *
- * @param array $actions
- */
-function credits_admin_action_handler(&$actions)
-{
-    $actions['credits'] = array(
-        'active' => 'credits',
-        'file'   => 'credits',
-    );
-}
-
-/**
- * Register admin permissions for Credits management.
- *
- * @param array $admin_permissions
- */
-function credits_admin_permissions(&$admin_permissions)
-{
-    global $lang;
-    $lang->load('credits', false, true);
-
-    $admin_permissions['credits'] = $lang->credits_admin_perm;
-}
-
 // ---- ACP Page Handler ----
 
 // Hook into admin_load to handle the credits module page
@@ -62,7 +19,7 @@ function credits_admin_load()
 {
     global $mybb, $db, $lang, $page, $run_module, $action_file;
 
-    if ($run_module != 'user' || $action_file != 'credits') {
+    if ($run_module != 'credits') {
         return;
     }
 
@@ -70,165 +27,143 @@ function credits_admin_load()
 
     require_once MYBB_ROOT . 'inc/plugins/credits/core.php';
 
-    $page->add_breadcrumb_item($lang->credits_admin_menu, 'index.php?module=user-credits');
+    $page->add_breadcrumb_item($lang->credits_admin_menu, 'index.php?module=credits-main');
 
-    $sub_tabs = array(
-        'credits_users' => array(
-            'title'       => $lang->credits_admin_users,
-            'link'        => 'index.php?module=user-credits',
-            'description' => $lang->credits_admin_users_desc,
-        ),
-        'credits_adjust' => array(
-            'title'       => $lang->credits_admin_adjust,
-            'link'        => 'index.php?module=user-credits&action=adjust',
-            'description' => $lang->credits_admin_adjust_desc,
-        ),
-        'credits_log' => array(
-            'title'       => $lang->credits_admin_log,
-            'link'        => 'index.php?module=user-credits&action=log',
-            'description' => $lang->credits_admin_log_desc,
-        ),
-        'credits_categories' => array(
-            'title'       => $lang->credits_admin_categories,
-            'link'        => 'index.php?module=user-credits&action=categories',
-            'description' => $lang->credits_admin_categories_desc,
-        ),
-        'credits_shop' => array(
-            'title'       => $lang->credits_admin_shop,
-            'link'        => 'index.php?module=user-credits&action=shop',
-            'description' => $lang->credits_admin_shop_desc,
-        ),
-        'credits_packs' => array(
-            'title'       => $lang->credits_admin_packs,
-            'link'        => 'index.php?module=user-credits&action=packs',
-            'description' => $lang->credits_admin_packs_desc,
-        ),
-        'credits_payments' => array(
-            'title'       => $lang->credits_admin_payments,
-            'link'        => 'index.php?module=user-credits&action=payments',
-            'description' => $lang->credits_admin_payments_desc,
-        ),
-        'credits_gifts' => array(
-            'title'       => $lang->credits_admin_gifts,
-            'link'        => 'index.php?module=user-credits&action=gifts',
-            'description' => $lang->credits_admin_gifts_desc,
-        ),
-        'credits_ads' => array(
-            'title'       => $lang->credits_admin_ads,
-            'link'        => 'index.php?module=user-credits&action=ads',
-            'description' => $lang->credits_admin_ads_desc,
-        ),
-        'credits_achievements' => array(
-            'title'       => $lang->credits_admin_achievements,
-            'link'        => 'index.php?module=user-credits&action=achievements',
-            'description' => $lang->credits_admin_achievements_desc,
-        ),
-        'credits_lottery' => array(
-            'title'       => $lang->credits_admin_lottery,
-            'link'        => 'index.php?module=user-credits&action=lottery',
-            'description' => $lang->credits_admin_lottery_desc,
-        ),
-        'credits_referrals' => array(
-            'title'       => $lang->credits_admin_referrals,
-            'link'        => 'index.php?module=user-credits&action=referrals',
-            'description' => $lang->credits_admin_referrals_desc,
-        ),
+    // Determine current action and update active sidebar highlighting
+    $action = $mybb->get_input('action');
+
+    // Map sub-actions to their parent sidebar section for highlighting
+    $action_to_section = array(
+        'adjust'        => 'adjust',
+        'do_adjust'     => 'adjust',
+        'log'           => 'log',
+        'categories'    => 'categories',
+        'cat_add'       => 'categories',
+        'cat_edit'      => 'categories',
+        'cat_do_save'   => 'categories',
+        'cat_delete'    => 'categories',
+        'shop'          => 'shop',
+        'shop_add'      => 'shop',
+        'shop_edit'     => 'shop',
+        'shop_do_save'  => 'shop',
+        'shop_delete'   => 'shop',
+        'packs'         => 'packs',
+        'pack_add'      => 'packs',
+        'pack_edit'     => 'packs',
+        'pack_do_save'  => 'packs',
+        'pack_delete'   => 'packs',
+        'payments'      => 'payments',
+        'gifts'         => 'gifts',
+        'ads'           => 'ads',
+        'ad_toggle'     => 'ads',
+        'achievements'  => 'achievements',
+        'ach_add'       => 'achievements',
+        'ach_edit'      => 'achievements',
+        'ach_do_save'   => 'achievements',
+        'ach_delete'    => 'achievements',
+        'lottery'       => 'lottery',
+        'lottery_add'   => 'lottery',
+        'lottery_edit'  => 'lottery',
+        'lottery_do_save' => 'lottery',
+        'lottery_delete'  => 'lottery',
+        'referrals'     => 'referrals',
     );
 
-    $action = $mybb->get_input('action');
+    // Override active_action so the sidebar highlights the correct section
+    $page->active_action = isset($action_to_section[$action]) ? $action_to_section[$action] : 'main';
 
     switch ($action) {
         case 'adjust':
-            credits_admin_adjust($page, $sub_tabs);
+            credits_admin_adjust($page);
             break;
         case 'do_adjust':
-            credits_admin_do_adjust($page, $sub_tabs);
+            credits_admin_do_adjust($page);
             break;
         case 'log':
-            credits_admin_log($page, $sub_tabs);
+            credits_admin_log($page);
             break;
         case 'categories':
-            credits_admin_categories($page, $sub_tabs);
+            credits_admin_categories($page);
             break;
         case 'cat_add':
         case 'cat_edit':
-            credits_admin_cat_form($page, $sub_tabs);
+            credits_admin_cat_form($page);
             break;
         case 'cat_do_save':
-            credits_admin_cat_save($page, $sub_tabs);
+            credits_admin_cat_save($page);
             break;
         case 'cat_delete':
-            credits_admin_cat_delete($page, $sub_tabs);
+            credits_admin_cat_delete($page);
             break;
         case 'shop':
-            credits_admin_shop($page, $sub_tabs);
+            credits_admin_shop($page);
             break;
         case 'shop_add':
         case 'shop_edit':
-            credits_admin_shop_form($page, $sub_tabs);
+            credits_admin_shop_form($page);
             break;
         case 'shop_do_save':
-            credits_admin_shop_save($page, $sub_tabs);
+            credits_admin_shop_save($page);
             break;
         case 'shop_delete':
-            credits_admin_shop_delete($page, $sub_tabs);
+            credits_admin_shop_delete($page);
             break;
         case 'packs':
-            credits_admin_packs($page, $sub_tabs);
+            credits_admin_packs($page);
             break;
         case 'pack_add':
         case 'pack_edit':
-            credits_admin_pack_form($page, $sub_tabs);
+            credits_admin_pack_form($page);
             break;
         case 'pack_do_save':
-            credits_admin_pack_save($page, $sub_tabs);
+            credits_admin_pack_save($page);
             break;
         case 'pack_delete':
-            credits_admin_pack_delete($page, $sub_tabs);
+            credits_admin_pack_delete($page);
             break;
         case 'payments':
-            credits_admin_payments($page, $sub_tabs);
+            credits_admin_payments($page);
             break;
         case 'gifts':
-            credits_admin_gifts($page, $sub_tabs);
+            credits_admin_gifts($page);
             break;
         case 'ads':
-            credits_admin_ads($page, $sub_tabs);
+            credits_admin_ads($page);
             break;
         case 'ad_toggle':
-            credits_admin_ad_toggle($page, $sub_tabs);
+            credits_admin_ad_toggle($page);
             break;
         case 'achievements':
-            credits_admin_achievements($page, $sub_tabs);
+            credits_admin_achievements($page);
             break;
         case 'ach_add':
         case 'ach_edit':
-            credits_admin_ach_form($page, $sub_tabs);
+            credits_admin_ach_form($page);
             break;
         case 'ach_do_save':
-            credits_admin_ach_save($page, $sub_tabs);
+            credits_admin_ach_save($page);
             break;
         case 'ach_delete':
-            credits_admin_ach_delete($page, $sub_tabs);
+            credits_admin_ach_delete($page);
             break;
         case 'lottery':
-            credits_admin_lottery($page, $sub_tabs);
+            credits_admin_lottery($page);
             break;
         case 'lottery_add':
         case 'lottery_edit':
-            credits_admin_lottery_form($page, $sub_tabs);
+            credits_admin_lottery_form($page);
             break;
         case 'lottery_do_save':
-            credits_admin_lottery_save($page, $sub_tabs);
+            credits_admin_lottery_save($page);
             break;
         case 'lottery_delete':
-            credits_admin_lottery_delete($page, $sub_tabs);
+            credits_admin_lottery_delete($page);
             break;
         case 'referrals':
-            credits_admin_referrals($page, $sub_tabs);
+            credits_admin_referrals($page);
             break;
         default:
-            credits_admin_users($page, $sub_tabs);
+            credits_admin_users($page);
             break;
     }
 
@@ -238,17 +173,17 @@ function credits_admin_load()
 /**
  * ACP: User listing with credit balances.
  */
-function credits_admin_users($page, $sub_tabs)
+function credits_admin_users($page)
 {
     global $mybb, $db, $lang;
 
     $page->output_header($lang->credits_admin_menu);
-    $page->output_nav_tabs($sub_tabs, 'credits_users');
+
 
     // Search form
     $search_username = htmlspecialchars_uni($mybb->get_input('username'));
 
-    $form = new Form('index.php?module=user-credits', 'post');
+    $form = new Form('index.php?module=credits-main', 'post');
     echo '<div style="overflow: hidden; margin-bottom: 8px;"><div class="float_right">';
     echo $form->generate_text_box('username', $search_username, array('style' => 'width: 200px;'));
     echo ' ';
@@ -295,8 +230,8 @@ function credits_admin_users($page, $sub_tabs)
         $table->construct_cell(my_number_format($user['credits']), array('class' => 'align_center'));
         $table->construct_cell(my_number_format($user['postnum']), array('class' => 'align_center'));
         $table->construct_cell(
-            '<a href="index.php?module=user-credits&action=adjust&uid=' . $user['uid'] . '">' . $lang->credits_admin_adjust . '</a>'
-            . ' | <a href="index.php?module=user-credits&action=log&uid=' . $user['uid'] . '">' . $lang->credits_admin_log . '</a>',
+            '<a href="index.php?module=credits-main&action=adjust&uid=' . $user['uid'] . '">' . $lang->credits_admin_adjust . '</a>'
+            . ' | <a href="index.php?module=credits-main&action=log&uid=' . $user['uid'] . '">' . $lang->credits_admin_log . '</a>',
             array('class' => 'align_center')
         );
         $table->construct_row();
@@ -310,7 +245,7 @@ function credits_admin_users($page, $sub_tabs)
     $table->output($lang->credits_admin_users);
 
     // Pagination
-    echo draw_admin_pagination($current_page, $per_page, $total, 'index.php?module=user-credits&username=' . urlencode($search_username) . '&sort_by=' . $sort_by . '&sort_dir=' . $sort_dir);
+    echo draw_admin_pagination($current_page, $per_page, $total, 'index.php?module=credits-main&username=' . urlencode($search_username) . '&sort_by=' . $sort_by . '&sort_dir=' . $sort_dir);
 
     $page->output_footer();
 }
@@ -318,12 +253,12 @@ function credits_admin_users($page, $sub_tabs)
 /**
  * ACP: Credit adjustment form.
  */
-function credits_admin_adjust($page, $sub_tabs)
+function credits_admin_adjust($page)
 {
     global $mybb, $db, $lang;
 
     $page->output_header($lang->credits_admin_adjust);
-    $page->output_nav_tabs($sub_tabs, 'credits_adjust');
+
 
     $uid = $mybb->get_input('uid', MyBB::INPUT_INT);
     $username = '';
@@ -338,7 +273,7 @@ function credits_admin_adjust($page, $sub_tabs)
         }
     }
 
-    $form = new Form('index.php?module=user-credits&action=do_adjust', 'post');
+    $form = new Form('index.php?module=credits-main&action=do_adjust', 'post');
 
     $form_container = new FormContainer($lang->credits_admin_adjust);
     $form_container->output_row(
@@ -386,7 +321,7 @@ function credits_admin_adjust($page, $sub_tabs)
 /**
  * ACP: Process credit adjustment.
  */
-function credits_admin_do_adjust($page, $sub_tabs)
+function credits_admin_do_adjust($page)
 {
     global $mybb, $db, $lang;
 
@@ -398,7 +333,7 @@ function credits_admin_do_adjust($page, $sub_tabs)
 
     if (empty($username)) {
         flash_message($lang->credits_admin_no_user, 'error');
-        admin_redirect('index.php?module=user-credits&action=adjust');
+        admin_redirect('index.php?module=credits-main&action=adjust');
     }
 
     $query = $db->simple_select('users', 'uid, credits', "username = '" . $db->escape_string($username) . "'");
@@ -406,7 +341,7 @@ function credits_admin_do_adjust($page, $sub_tabs)
 
     if (!$user) {
         flash_message($lang->credits_admin_user_not_found, 'error');
-        admin_redirect('index.php?module=user-credits&action=adjust');
+        admin_redirect('index.php?module=credits-main&action=adjust');
     }
 
     $uid = (int)$user['uid'];
@@ -428,18 +363,18 @@ function credits_admin_do_adjust($page, $sub_tabs)
     }
 
     flash_message($lang->credits_admin_adjusted, 'success');
-    admin_redirect('index.php?module=user-credits&action=adjust&uid=' . $uid);
+    admin_redirect('index.php?module=credits-main&action=adjust&uid=' . $uid);
 }
 
 /**
  * ACP: Credit log viewer.
  */
-function credits_admin_log($page, $sub_tabs)
+function credits_admin_log($page)
 {
     global $mybb, $db, $lang;
 
     $page->output_header($lang->credits_admin_log);
-    $page->output_nav_tabs($sub_tabs, 'credits_log');
+
 
     $uid = $mybb->get_input('uid', MyBB::INPUT_INT);
     $filter_action = $db->escape_string($mybb->get_input('filter_action'));
@@ -477,8 +412,8 @@ function credits_admin_log($page, $sub_tabs)
     ");
 
     // Filter form
-    $form = new Form('index.php?module=user-credits&action=log', 'get');
-    echo '<input type="hidden" name="module" value="user-credits" />';
+    $form = new Form('index.php?module=credits-main&action=log', 'get');
+    echo '<input type="hidden" name="module" value="credits-main" />';
     echo '<input type="hidden" name="action" value="log" />';
     echo '<div style="overflow: hidden; margin-bottom: 8px;"><div class="float_right">';
     echo $form->generate_select_box('filter_action', array(
@@ -515,7 +450,7 @@ function credits_admin_log($page, $sub_tabs)
         $amount_display = credits_format((int)$log['amount']);
         $log_date = my_date('jS M Y, g:i A', $log['dateline']);
 
-        $table->construct_cell('<a href="index.php?module=user-credits&action=log&uid=' . $log['uid'] . '">' . $username_display . '</a>');
+        $table->construct_cell('<a href="index.php?module=credits-main&action=log&uid=' . $log['uid'] . '">' . $username_display . '</a>');
         $table->construct_cell($action_name);
         $table->construct_cell($amount_display, array('class' => 'align_center'));
         $table->construct_cell(my_number_format($log['balance']), array('class' => 'align_center'));
@@ -534,7 +469,7 @@ function credits_admin_log($page, $sub_tabs)
     if ($uid > 0) $filter_params .= '&uid=' . $uid;
     if (!empty($filter_action)) $filter_params .= '&filter_action=' . urlencode($filter_action);
 
-    echo draw_admin_pagination($current_page, $per_page, $total, 'index.php?module=user-credits&action=log' . $filter_params);
+    echo draw_admin_pagination($current_page, $per_page, $total, 'index.php?module=credits-main&action=log' . $filter_params);
 
     $page->output_footer();
 }
@@ -544,14 +479,14 @@ function credits_admin_log($page, $sub_tabs)
 /**
  * ACP: Category listing.
  */
-function credits_admin_categories($page, $sub_tabs)
+function credits_admin_categories($page)
 {
     global $mybb, $db, $lang;
 
     $page->output_header($lang->credits_admin_categories);
-    $page->output_nav_tabs($sub_tabs, 'credits_categories');
 
-    echo '<div style="overflow: hidden; margin-bottom: 8px;"><div class="float_right"><a href="index.php?module=user-credits&action=cat_add" class="button">' . $lang->credits_admin_cat_add . '</a></div></div>';
+
+    echo '<div style="overflow: hidden; margin-bottom: 8px;"><div class="float_right"><a href="index.php?module=credits-main&action=cat_add" class="button">' . $lang->credits_admin_cat_add . '</a></div></div>';
 
     $query = $db->simple_select('credits_categories', '*', '', array(
         'order_by'  => 'disporder',
@@ -587,8 +522,8 @@ function credits_admin_categories($page, $sub_tabs)
         $table->construct_cell($cat['active'] ? $lang->credits_admin_active : $lang->credits_admin_inactive, array('class' => 'align_center'));
         $table->construct_cell($cat['visible'] ? $lang->credits_admin_cat_listed : $lang->credits_admin_cat_unlisted, array('class' => 'align_center'));
         $table->construct_cell(
-            '<a href="index.php?module=user-credits&action=cat_edit&cid=' . $cid . '">' . $lang->credits_admin_edit . '</a>'
-            . ' | <a href="index.php?module=user-credits&action=cat_delete&cid=' . $cid . '&my_post_key=' . $mybb->post_code . '" onclick="return AdminCP.deleteConfirmation(this, \'' . $lang->credits_admin_cat_delete_confirm . '\')">' . $lang->credits_admin_delete . '</a>',
+            '<a href="index.php?module=credits-main&action=cat_edit&cid=' . $cid . '">' . $lang->credits_admin_edit . '</a>'
+            . ' | <a href="index.php?module=credits-main&action=cat_delete&cid=' . $cid . '&my_post_key=' . $mybb->post_code . '" onclick="return AdminCP.deleteConfirmation(this, \'' . $lang->credits_admin_cat_delete_confirm . '\')">' . $lang->credits_admin_delete . '</a>',
             array('class' => 'align_center')
         );
         $table->construct_row();
@@ -607,7 +542,7 @@ function credits_admin_categories($page, $sub_tabs)
 /**
  * ACP: Category add/edit form.
  */
-function credits_admin_cat_form($page, $sub_tabs)
+function credits_admin_cat_form($page)
 {
     global $mybb, $db, $lang;
 
@@ -629,7 +564,7 @@ function credits_admin_cat_form($page, $sub_tabs)
 
         if (!$cat) {
             flash_message($lang->credits_admin_cat_not_found, 'error');
-            admin_redirect('index.php?module=user-credits&action=categories');
+            admin_redirect('index.php?module=credits-main&action=categories');
         }
 
         $page->output_header($lang->credits_admin_cat_edit);
@@ -637,9 +572,9 @@ function credits_admin_cat_form($page, $sub_tabs)
         $page->output_header($lang->credits_admin_cat_add);
     }
 
-    $page->output_nav_tabs($sub_tabs, 'credits_categories');
 
-    $form = new Form('index.php?module=user-credits&action=cat_do_save', 'post');
+
+    $form = new Form('index.php?module=credits-main&action=cat_do_save', 'post');
 
     if ($is_edit) {
         echo $form->generate_hidden_field('cid', $cat['cid']);
@@ -685,7 +620,7 @@ function credits_admin_cat_form($page, $sub_tabs)
 /**
  * ACP: Save category (add/edit).
  */
-function credits_admin_cat_save($page, $sub_tabs)
+function credits_admin_cat_save($page)
 {
     global $mybb, $db, $lang;
 
@@ -703,7 +638,7 @@ function credits_admin_cat_save($page, $sub_tabs)
 
     if (empty($data['name'])) {
         flash_message($lang->credits_admin_cat_name_required, 'error');
-        admin_redirect('index.php?module=user-credits&action=categories');
+        admin_redirect('index.php?module=credits-main&action=categories');
     }
 
     if ($cid > 0) {
@@ -714,13 +649,13 @@ function credits_admin_cat_save($page, $sub_tabs)
         flash_message($lang->credits_admin_cat_added, 'success');
     }
 
-    admin_redirect('index.php?module=user-credits&action=categories');
+    admin_redirect('index.php?module=credits-main&action=categories');
 }
 
 /**
  * ACP: Delete a category.
  */
-function credits_admin_cat_delete($page, $sub_tabs)
+function credits_admin_cat_delete($page)
 {
     global $mybb, $db, $lang;
 
@@ -737,7 +672,7 @@ function credits_admin_cat_delete($page, $sub_tabs)
         flash_message($lang->credits_admin_cat_deleted, 'success');
     }
 
-    admin_redirect('index.php?module=user-credits&action=categories');
+    admin_redirect('index.php?module=credits-main&action=categories');
 }
 
 // ---- Shop Item Management ----
@@ -767,14 +702,14 @@ function credits_admin_get_category_options(): array
 /**
  * ACP: Shop item management listing.
  */
-function credits_admin_shop($page, $sub_tabs)
+function credits_admin_shop($page)
 {
     global $mybb, $db, $lang;
 
     $page->output_header($lang->credits_admin_shop);
-    $page->output_nav_tabs($sub_tabs, 'credits_shop');
 
-    echo '<div style="overflow: hidden; margin-bottom: 8px;"><div class="float_right"><a href="index.php?module=user-credits&action=shop_add" class="button">' . $lang->credits_admin_shop_add . '</a></div></div>';
+
+    echo '<div style="overflow: hidden; margin-bottom: 8px;"><div class="float_right"><a href="index.php?module=credits-main&action=shop_add" class="button">' . $lang->credits_admin_shop_add . '</a></div></div>';
 
     // Load category names
     $categories = array(0 => $lang->credits_admin_uncategorized);
@@ -825,8 +760,8 @@ function credits_admin_shop($page, $sub_tabs)
         $table->construct_cell($item['active'] ? $lang->credits_admin_active : $lang->credits_admin_inactive, array('class' => 'align_center'));
         $table->construct_cell((int)$item['disporder'], array('class' => 'align_center'));
         $table->construct_cell(
-            '<a href="index.php?module=user-credits&action=shop_edit&iid=' . $item['iid'] . '">' . $lang->credits_admin_edit . '</a>'
-            . ' | <a href="index.php?module=user-credits&action=shop_delete&iid=' . $item['iid'] . '&my_post_key=' . $mybb->post_code . '" onclick="return AdminCP.deleteConfirmation(this, \'' . $lang->credits_admin_delete_confirm . '\')">' . $lang->credits_admin_delete . '</a>',
+            '<a href="index.php?module=credits-main&action=shop_edit&iid=' . $item['iid'] . '">' . $lang->credits_admin_edit . '</a>'
+            . ' | <a href="index.php?module=credits-main&action=shop_delete&iid=' . $item['iid'] . '&my_post_key=' . $mybb->post_code . '" onclick="return AdminCP.deleteConfirmation(this, \'' . $lang->credits_admin_delete_confirm . '\')">' . $lang->credits_admin_delete . '</a>',
             array('class' => 'align_center')
         );
         $table->construct_row();
@@ -845,7 +780,7 @@ function credits_admin_shop($page, $sub_tabs)
 /**
  * ACP: Shop item add/edit form.
  */
-function credits_admin_shop_form($page, $sub_tabs)
+function credits_admin_shop_form($page)
 {
     global $mybb, $db, $lang;
 
@@ -871,7 +806,7 @@ function credits_admin_shop_form($page, $sub_tabs)
 
         if (!$item) {
             flash_message($lang->credits_item_not_found, 'error');
-            admin_redirect('index.php?module=user-credits&action=shop');
+            admin_redirect('index.php?module=credits-main&action=shop');
         }
 
         $page->output_header($lang->credits_admin_shop_edit);
@@ -879,7 +814,7 @@ function credits_admin_shop_form($page, $sub_tabs)
         $page->output_header($lang->credits_admin_shop_add);
     }
 
-    $page->output_nav_tabs($sub_tabs, 'credits_shop');
+
 
     // Parse existing item data
     $item_data = array();
@@ -887,7 +822,7 @@ function credits_admin_shop_form($page, $sub_tabs)
         $item_data = json_decode($item['data'], true) ?: array();
     }
 
-    $form = new Form('index.php?module=user-credits&action=shop_do_save', 'post');
+    $form = new Form('index.php?module=credits-main&action=shop_do_save', 'post');
 
     if ($is_edit) {
         echo $form->generate_hidden_field('iid', $item['iid']);
@@ -1257,7 +1192,7 @@ function credits_admin_shop_form($page, $sub_tabs)
 /**
  * ACP: Save shop item (add/edit).
  */
-function credits_admin_shop_save($page, $sub_tabs)
+function credits_admin_shop_save($page)
 {
     global $mybb, $db, $lang;
 
@@ -1406,7 +1341,7 @@ function credits_admin_shop_save($page, $sub_tabs)
 
     if (empty($data['name'])) {
         flash_message($lang->credits_admin_name_required, 'error');
-        admin_redirect('index.php?module=user-credits&action=shop');
+        admin_redirect('index.php?module=credits-main&action=shop');
     }
 
     if ($iid > 0) {
@@ -1417,13 +1352,13 @@ function credits_admin_shop_save($page, $sub_tabs)
         flash_message($lang->credits_admin_item_added, 'success');
     }
 
-    admin_redirect('index.php?module=user-credits&action=shop');
+    admin_redirect('index.php?module=credits-main&action=shop');
 }
 
 /**
  * ACP: Delete a shop item.
  */
-function credits_admin_shop_delete($page, $sub_tabs)
+function credits_admin_shop_delete($page)
 {
     global $mybb, $db, $lang;
 
@@ -1436,7 +1371,7 @@ function credits_admin_shop_delete($page, $sub_tabs)
         flash_message($lang->credits_admin_item_deleted, 'success');
     }
 
-    admin_redirect('index.php?module=user-credits&action=shop');
+    admin_redirect('index.php?module=credits-main&action=shop');
 }
 
 // ---- Credit Pack Management ----
@@ -1444,14 +1379,14 @@ function credits_admin_shop_delete($page, $sub_tabs)
 /**
  * ACP: Credit packs listing.
  */
-function credits_admin_packs($page, $sub_tabs)
+function credits_admin_packs($page)
 {
     global $mybb, $db, $lang;
 
     $page->output_header($lang->credits_admin_packs);
-    $page->output_nav_tabs($sub_tabs, 'credits_packs');
 
-    echo '<div style="overflow: hidden; margin-bottom: 8px;"><div class="float_right"><a href="index.php?module=user-credits&action=pack_add" class="button">' . $lang->credits_admin_pack_add . '</a></div></div>';
+
+    echo '<div style="overflow: hidden; margin-bottom: 8px;"><div class="float_right"><a href="index.php?module=credits-main&action=pack_add" class="button">' . $lang->credits_admin_pack_add . '</a></div></div>';
 
     $query = $db->simple_select('credits_packs', '*', '', array(
         'order_by'  => 'disporder',
@@ -1473,8 +1408,8 @@ function credits_admin_packs($page, $sub_tabs)
         $table->construct_cell($pack['active'] ? $lang->credits_admin_active : $lang->credits_admin_inactive, array('class' => 'align_center'));
         $table->construct_cell((int)$pack['disporder'], array('class' => 'align_center'));
         $table->construct_cell(
-            '<a href="index.php?module=user-credits&action=pack_edit&pack_id=' . $pack['pack_id'] . '">' . $lang->credits_admin_edit . '</a>'
-            . ' | <a href="index.php?module=user-credits&action=pack_delete&pack_id=' . $pack['pack_id'] . '&my_post_key=' . $mybb->post_code . '" onclick="return AdminCP.deleteConfirmation(this, \'' . $lang->credits_admin_pack_delete_confirm . '\')">' . $lang->credits_admin_delete . '</a>',
+            '<a href="index.php?module=credits-main&action=pack_edit&pack_id=' . $pack['pack_id'] . '">' . $lang->credits_admin_edit . '</a>'
+            . ' | <a href="index.php?module=credits-main&action=pack_delete&pack_id=' . $pack['pack_id'] . '&my_post_key=' . $mybb->post_code . '" onclick="return AdminCP.deleteConfirmation(this, \'' . $lang->credits_admin_pack_delete_confirm . '\')">' . $lang->credits_admin_delete . '</a>',
             array('class' => 'align_center')
         );
         $table->construct_row();
@@ -1493,7 +1428,7 @@ function credits_admin_packs($page, $sub_tabs)
 /**
  * ACP: Credit pack add/edit form.
  */
-function credits_admin_pack_form($page, $sub_tabs)
+function credits_admin_pack_form($page)
 {
     global $mybb, $db, $lang;
 
@@ -1515,7 +1450,7 @@ function credits_admin_pack_form($page, $sub_tabs)
 
         if (!$pack) {
             flash_message($lang->credits_admin_pack_not_found, 'error');
-            admin_redirect('index.php?module=user-credits&action=packs');
+            admin_redirect('index.php?module=credits-main&action=packs');
         }
 
         $page->output_header($lang->credits_admin_pack_edit);
@@ -1523,9 +1458,9 @@ function credits_admin_pack_form($page, $sub_tabs)
         $page->output_header($lang->credits_admin_pack_add);
     }
 
-    $page->output_nav_tabs($sub_tabs, 'credits_packs');
 
-    $form = new Form('index.php?module=user-credits&action=pack_do_save', 'post');
+
+    $form = new Form('index.php?module=credits-main&action=pack_do_save', 'post');
 
     if ($is_edit) {
         echo $form->generate_hidden_field('pack_id', $pack['pack_id']);
@@ -1551,7 +1486,7 @@ function credits_admin_pack_form($page, $sub_tabs)
 /**
  * ACP: Save credit pack.
  */
-function credits_admin_pack_save($page, $sub_tabs)
+function credits_admin_pack_save($page)
 {
     global $mybb, $db, $lang;
 
@@ -1569,7 +1504,7 @@ function credits_admin_pack_save($page, $sub_tabs)
 
     if (empty($data['name'])) {
         flash_message($lang->credits_admin_name_required, 'error');
-        admin_redirect('index.php?module=user-credits&action=packs');
+        admin_redirect('index.php?module=credits-main&action=packs');
     }
 
     if ($pack_id > 0) {
@@ -1580,13 +1515,13 @@ function credits_admin_pack_save($page, $sub_tabs)
         flash_message($lang->credits_admin_pack_added, 'success');
     }
 
-    admin_redirect('index.php?module=user-credits&action=packs');
+    admin_redirect('index.php?module=credits-main&action=packs');
 }
 
 /**
  * ACP: Delete a credit pack.
  */
-function credits_admin_pack_delete($page, $sub_tabs)
+function credits_admin_pack_delete($page)
 {
     global $mybb, $db, $lang;
 
@@ -1599,7 +1534,7 @@ function credits_admin_pack_delete($page, $sub_tabs)
         flash_message($lang->credits_admin_pack_deleted, 'success');
     }
 
-    admin_redirect('index.php?module=user-credits&action=packs');
+    admin_redirect('index.php?module=credits-main&action=packs');
 }
 
 // ---- Payment Log ----
@@ -1607,12 +1542,12 @@ function credits_admin_pack_delete($page, $sub_tabs)
 /**
  * ACP: Payment log viewer.
  */
-function credits_admin_payments($page, $sub_tabs)
+function credits_admin_payments($page)
 {
     global $mybb, $db, $lang;
 
     $page->output_header($lang->credits_admin_payments);
-    $page->output_nav_tabs($sub_tabs, 'credits_payments');
+
 
     $per_page = 25;
     $current_page = $mybb->get_input('page', MyBB::INPUT_INT);
@@ -1657,7 +1592,7 @@ function credits_admin_payments($page, $sub_tabs)
 
     $table->output($lang->credits_admin_payments);
 
-    echo draw_admin_pagination($current_page, $per_page, $total, 'index.php?module=user-credits&action=payments');
+    echo draw_admin_pagination($current_page, $per_page, $total, 'index.php?module=credits-main&action=payments');
 
     $page->output_footer();
 }
@@ -1667,12 +1602,12 @@ function credits_admin_payments($page, $sub_tabs)
 /**
  * ACP: Gift log viewer.
  */
-function credits_admin_gifts($page, $sub_tabs)
+function credits_admin_gifts($page)
 {
     global $mybb, $db, $lang;
 
     $page->output_header($lang->credits_admin_gifts);
-    $page->output_nav_tabs($sub_tabs, 'credits_gifts');
+
 
     $per_page = 25;
     $current_page = $mybb->get_input('page', MyBB::INPUT_INT);
@@ -1723,7 +1658,7 @@ function credits_admin_gifts($page, $sub_tabs)
 
     $table->output($lang->credits_admin_gifts);
 
-    echo draw_admin_pagination($current_page, $per_page, $total, 'index.php?module=user-credits&action=gifts');
+    echo draw_admin_pagination($current_page, $per_page, $total, 'index.php?module=credits-main&action=gifts');
 
     $page->output_footer();
 }
@@ -1733,12 +1668,12 @@ function credits_admin_gifts($page, $sub_tabs)
 /**
  * ACP: Ad space listing.
  */
-function credits_admin_ads($page, $sub_tabs)
+function credits_admin_ads($page)
 {
     global $mybb, $db, $lang;
 
     $page->output_header($lang->credits_admin_ads);
-    $page->output_nav_tabs($sub_tabs, 'credits_ads');
+
 
     $query = $db->query("
         SELECT a.*, u.username
@@ -1766,7 +1701,7 @@ function credits_admin_ads($page, $sub_tabs)
 
         $toggle_text = $ad['active'] ? $lang->credits_admin_ad_deactivate : $lang->credits_admin_ad_approve;
         $table->construct_cell(
-            '<a href="index.php?module=user-credits&action=ad_toggle&ad_id=' . $ad['ad_id'] . '&my_post_key=' . $mybb->post_code . '">' . $toggle_text . '</a>',
+            '<a href="index.php?module=credits-main&action=ad_toggle&ad_id=' . $ad['ad_id'] . '&my_post_key=' . $mybb->post_code . '">' . $toggle_text . '</a>',
             array('class' => 'align_center')
         );
         $table->construct_row();
@@ -1785,7 +1720,7 @@ function credits_admin_ads($page, $sub_tabs)
 /**
  * ACP: Toggle ad active status (approve/deactivate).
  */
-function credits_admin_ad_toggle($page, $sub_tabs)
+function credits_admin_ad_toggle($page)
 {
     global $mybb, $db, $lang;
 
@@ -1804,7 +1739,7 @@ function credits_admin_ad_toggle($page, $sub_tabs)
         }
     }
 
-    admin_redirect('index.php?module=user-credits&action=ads');
+    admin_redirect('index.php?module=credits-main&action=ads');
 }
 
 // ---- Achievement Management ----
@@ -1812,14 +1747,14 @@ function credits_admin_ad_toggle($page, $sub_tabs)
 /**
  * ACP: Achievement listing.
  */
-function credits_admin_achievements($page, $sub_tabs)
+function credits_admin_achievements($page)
 {
     global $mybb, $db, $lang;
 
     $page->output_header($lang->credits_admin_achievements);
-    $page->output_nav_tabs($sub_tabs, 'credits_achievements');
 
-    echo '<div style="overflow: hidden; margin-bottom: 8px;"><div class="float_right"><a href="index.php?module=user-credits&action=ach_add" class="button">' . $lang->credits_admin_ach_add . '</a></div></div>';
+
+    echo '<div style="overflow: hidden; margin-bottom: 8px;"><div class="float_right"><a href="index.php?module=credits-main&action=ach_add" class="button">' . $lang->credits_admin_ach_add . '</a></div></div>';
 
     $type_labels = array(
         'posts'          => $lang->credits_admin_ach_type_posts,
@@ -1878,8 +1813,8 @@ function credits_admin_achievements($page, $sub_tabs)
         $table->construct_cell($ach['active'] ? $lang->credits_admin_active : $lang->credits_admin_inactive, array('class' => 'align_center'));
         $table->construct_cell((int)$ach['disporder'], array('class' => 'align_center'));
         $table->construct_cell(
-            '<a href="index.php?module=user-credits&action=ach_edit&aid=' . $aid . '">' . $lang->credits_admin_edit . '</a>'
-            . ' | <a href="index.php?module=user-credits&action=ach_delete&aid=' . $aid . '&my_post_key=' . $mybb->post_code . '" onclick="return AdminCP.deleteConfirmation(this, \'' . $lang->credits_admin_ach_delete_confirm . '\')">' . $lang->credits_admin_delete . '</a>',
+            '<a href="index.php?module=credits-main&action=ach_edit&aid=' . $aid . '">' . $lang->credits_admin_edit . '</a>'
+            . ' | <a href="index.php?module=credits-main&action=ach_delete&aid=' . $aid . '&my_post_key=' . $mybb->post_code . '" onclick="return AdminCP.deleteConfirmation(this, \'' . $lang->credits_admin_ach_delete_confirm . '\')">' . $lang->credits_admin_delete . '</a>',
             array('class' => 'align_center')
         );
         $table->construct_row();
@@ -1898,7 +1833,7 @@ function credits_admin_achievements($page, $sub_tabs)
 /**
  * ACP: Achievement add/edit form.
  */
-function credits_admin_ach_form($page, $sub_tabs)
+function credits_admin_ach_form($page)
 {
     global $mybb, $db, $lang;
 
@@ -1925,7 +1860,7 @@ function credits_admin_ach_form($page, $sub_tabs)
 
         if (!$ach) {
             flash_message($lang->credits_admin_ach_not_found, 'error');
-            admin_redirect('index.php?module=user-credits&action=achievements');
+            admin_redirect('index.php?module=credits-main&action=achievements');
         }
 
         $page->output_header($lang->credits_admin_ach_edit);
@@ -1933,9 +1868,9 @@ function credits_admin_ach_form($page, $sub_tabs)
         $page->output_header($lang->credits_admin_ach_add);
     }
 
-    $page->output_nav_tabs($sub_tabs, 'credits_achievements');
 
-    $form = new Form('index.php?module=user-credits&action=ach_do_save', 'post');
+
+    $form = new Form('index.php?module=credits-main&action=ach_do_save', 'post');
 
     if ($is_edit) {
         echo $form->generate_hidden_field('aid', $ach['aid']);
@@ -2063,7 +1998,7 @@ function credits_admin_ach_form($page, $sub_tabs)
 /**
  * ACP: Save achievement (add/edit).
  */
-function credits_admin_ach_save($page, $sub_tabs)
+function credits_admin_ach_save($page)
 {
     global $mybb, $db, $lang;
 
@@ -2108,7 +2043,7 @@ function credits_admin_ach_save($page, $sub_tabs)
 
     if (empty($data['name'])) {
         flash_message($lang->credits_admin_ach_name_required, 'error');
-        admin_redirect('index.php?module=user-credits&action=achievements');
+        admin_redirect('index.php?module=credits-main&action=achievements');
     }
 
     if ($aid > 0) {
@@ -2119,13 +2054,13 @@ function credits_admin_ach_save($page, $sub_tabs)
         flash_message($lang->credits_admin_ach_added, 'success');
     }
 
-    admin_redirect('index.php?module=user-credits&action=achievements');
+    admin_redirect('index.php?module=credits-main&action=achievements');
 }
 
 /**
  * ACP: Delete an achievement.
  */
-function credits_admin_ach_delete($page, $sub_tabs)
+function credits_admin_ach_delete($page)
 {
     global $mybb, $db, $lang;
 
@@ -2140,7 +2075,7 @@ function credits_admin_ach_delete($page, $sub_tabs)
         flash_message($lang->credits_admin_ach_deleted, 'success');
     }
 
-    admin_redirect('index.php?module=user-credits&action=achievements');
+    admin_redirect('index.php?module=credits-main&action=achievements');
 }
 
 // ---- Lottery Management ----
@@ -2148,14 +2083,14 @@ function credits_admin_ach_delete($page, $sub_tabs)
 /**
  * ACP: Lottery listing.
  */
-function credits_admin_lottery($page, $sub_tabs)
+function credits_admin_lottery($page)
 {
     global $mybb, $db, $lang;
 
     $page->output_header($lang->credits_admin_lottery);
-    $page->output_nav_tabs($sub_tabs, 'credits_lottery');
 
-    echo '<div style="overflow: hidden; margin-bottom: 8px;"><div class="float_right"><a href="index.php?module=user-credits&action=lottery_add" class="button">' . $lang->credits_admin_lottery_add . '</a></div></div>';
+
+    echo '<div style="overflow: hidden; margin-bottom: 8px;"><div class="float_right"><a href="index.php?module=credits-main&action=lottery_add" class="button">' . $lang->credits_admin_lottery_add . '</a></div></div>';
 
     $query = $db->query("
         SELECT l.*, u.username AS winner_name,
@@ -2193,8 +2128,8 @@ function credits_admin_lottery($page, $sub_tabs)
         $table->construct_cell($draw_display);
         $table->construct_cell($status_display, array('class' => 'align_center'));
         $table->construct_cell(
-            '<a href="index.php?module=user-credits&action=lottery_edit&lottery_id=' . $lid . '">' . $lang->credits_admin_edit . '</a>'
-            . ' | <a href="index.php?module=user-credits&action=lottery_delete&lottery_id=' . $lid . '&my_post_key=' . $mybb->post_code . '" onclick="return AdminCP.deleteConfirmation(this, \'' . $lang->credits_admin_lottery_delete_confirm . '\')">' . $lang->credits_admin_delete . '</a>',
+            '<a href="index.php?module=credits-main&action=lottery_edit&lottery_id=' . $lid . '">' . $lang->credits_admin_edit . '</a>'
+            . ' | <a href="index.php?module=credits-main&action=lottery_delete&lottery_id=' . $lid . '&my_post_key=' . $mybb->post_code . '" onclick="return AdminCP.deleteConfirmation(this, \'' . $lang->credits_admin_lottery_delete_confirm . '\')">' . $lang->credits_admin_delete . '</a>',
             array('class' => 'align_center')
         );
         $table->construct_row();
@@ -2213,7 +2148,7 @@ function credits_admin_lottery($page, $sub_tabs)
 /**
  * ACP: Lottery add/edit form.
  */
-function credits_admin_lottery_form($page, $sub_tabs)
+function credits_admin_lottery_form($page)
 {
     global $mybb, $db, $lang;
 
@@ -2237,7 +2172,7 @@ function credits_admin_lottery_form($page, $sub_tabs)
 
         if (!$lottery) {
             flash_message($lang->credits_admin_lottery_not_found, 'error');
-            admin_redirect('index.php?module=user-credits&action=lottery');
+            admin_redirect('index.php?module=credits-main&action=lottery');
         }
 
         $page->output_header($lang->credits_admin_lottery_edit);
@@ -2245,9 +2180,9 @@ function credits_admin_lottery_form($page, $sub_tabs)
         $page->output_header($lang->credits_admin_lottery_add);
     }
 
-    $page->output_nav_tabs($sub_tabs, 'credits_lottery');
 
-    $form = new Form('index.php?module=user-credits&action=lottery_do_save', 'post');
+
+    $form = new Form('index.php?module=credits-main&action=lottery_do_save', 'post');
 
     if ($is_edit) {
         echo $form->generate_hidden_field('lottery_id', $lottery['lottery_id']);
@@ -2319,7 +2254,7 @@ function credits_admin_lottery_form($page, $sub_tabs)
 /**
  * ACP: Save lottery (add/edit).
  */
-function credits_admin_lottery_save($page, $sub_tabs)
+function credits_admin_lottery_save($page)
 {
     global $mybb, $db, $lang;
 
@@ -2352,7 +2287,7 @@ function credits_admin_lottery_save($page, $sub_tabs)
 
     if (empty($data['name'])) {
         flash_message($lang->credits_admin_lottery_name_required, 'error');
-        admin_redirect('index.php?module=user-credits&action=lottery');
+        admin_redirect('index.php?module=credits-main&action=lottery');
     }
 
     if ($lottery_id > 0) {
@@ -2366,13 +2301,13 @@ function credits_admin_lottery_save($page, $sub_tabs)
         flash_message($lang->credits_admin_lottery_added, 'success');
     }
 
-    admin_redirect('index.php?module=user-credits&action=lottery');
+    admin_redirect('index.php?module=credits-main&action=lottery');
 }
 
 /**
  * ACP: Delete a lottery.
  */
-function credits_admin_lottery_delete($page, $sub_tabs)
+function credits_admin_lottery_delete($page)
 {
     global $mybb, $db, $lang;
 
@@ -2386,7 +2321,7 @@ function credits_admin_lottery_delete($page, $sub_tabs)
         flash_message($lang->credits_admin_lottery_deleted, 'success');
     }
 
-    admin_redirect('index.php?module=user-credits&action=lottery');
+    admin_redirect('index.php?module=credits-main&action=lottery');
 }
 
 // ---- Referral Log ----
@@ -2394,12 +2329,12 @@ function credits_admin_lottery_delete($page, $sub_tabs)
 /**
  * ACP: Referral log (read-only).
  */
-function credits_admin_referrals($page, $sub_tabs)
+function credits_admin_referrals($page)
 {
     global $mybb, $db, $lang;
 
     $page->output_header($lang->credits_admin_referrals);
-    $page->output_nav_tabs($sub_tabs, 'credits_referrals');
+
 
     $per_page = 25;
     $current_page = $mybb->get_input('page', MyBB::INPUT_INT);
@@ -2439,7 +2374,7 @@ function credits_admin_referrals($page, $sub_tabs)
 
     $table->output($lang->credits_admin_referrals);
 
-    echo draw_admin_pagination($current_page, $per_page, $total, 'index.php?module=user-credits&action=referrals');
+    echo draw_admin_pagination($current_page, $per_page, $total, 'index.php?module=credits-main&action=referrals');
 
     $page->output_footer();
 }
